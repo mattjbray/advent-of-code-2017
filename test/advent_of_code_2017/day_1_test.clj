@@ -2,6 +2,10 @@
   (:require [clojure.test :refer :all]
             [advent-of-code-2017.day-1 :refer :all]))
 
+(def input
+  (clojure.string/trim-newline
+   (slurp (clojure.java.io/resource "day_1.txt"))))
+
 ; Part One
 
 (deftest example-1-1
