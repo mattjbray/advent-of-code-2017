@@ -15,25 +15,25 @@
                 (let [acc (update acc :rights inc)]
                   (if (> (:rights acc) (:max-right acc))
                     (let [acc (update acc :max-right inc)]
-                      (update acc :direction (constantly :up)))
+                      (assoc acc :direction :up))
                     acc))
                 :up
                 (let [acc (update acc :ups inc)]
                   (if (> (:ups acc) (:max-up acc))
                     (let [acc (update acc :max-up inc)]
-                      (update acc :direction (constantly :left)))
+                      (assoc acc :direction :left))
                     acc))
                 :left
                 (let [acc (update acc :rights dec)]
                   (if (< (:rights acc) (:min-right acc))
                     (let [acc (update acc :min-right dec)]
-                      (update acc :direction (constantly :down)))
+                      (assoc acc :direction :down))
                     acc))
                 :down
                 (let [acc (update acc :ups dec)]
                   (if (< (:ups acc) (:min-up acc))
                     (let [acc (update acc :min-up dec)]
-                      (update acc :direction (constantly :right)))
+                      (assoc acc :direction :right))
                     acc))))
             init
             (range 1 target))))
