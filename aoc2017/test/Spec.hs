@@ -1,10 +1,11 @@
 import Test.Tasty
 import Test.Tasty.HUnit
 import Day3
+import Day4
 
 main :: IO ()
 main = defaultMain $ testGroup "Advent of Code 2017"
-  [ day3tests ]
+  [ day3tests, day4tests ]
 
 day3tests =
   testGroup
@@ -40,5 +41,43 @@ day3tests =
           squareValues !! 4 @?= 5
         , testCase "The solution is 266330" $
           (head . dropWhile (< 265149) $ squareValues) @?= 266330
+        ]
+    ]
+
+day4tests =
+  testGroup
+    "Day 4"
+    [ testGroup
+        "Part 1"
+        [ testCase "aa bb cc dd ee is valid" $
+          valid "aa bb cc dd ee" @? "Is not valid"
+        , testCase
+            "aa bb cc dd aa is not valid - the word aa appears more than once" $
+          not (valid "aa bb cc dd aa") @? "Is valid"
+        , testCase
+            "aa bb cc dd aaa is valid - aa and aaa count as different words" $
+          valid "aa bb cc dd aaa" @? "Is not valid"
+        , testCase "The solution is 337" $ do
+            phrases <- readPassphrases "../resources/day_4.txt"
+            (length . filter valid) phrases @?= 337
+        ]
+    , testGroup
+        "Part 2"
+        [ testCase "abcde fghij is a valid passphrase" $
+          valid2 "abcde fghij" @? "Is not valid"
+        , testCase
+            "abcde xyz ecdab is not valid - the letters from the third word can be rearranged to form the first word" $
+          not (valid2 "abcde xyz ecdab") @? "Is valid"
+        , testCase
+            "a ab abc abd abf abj is a valid passphrase, because all letters need to be used when forming another word" $
+          valid2 "a ab abc abd abf abj" @? "Is not valid"
+        , testCase "iiii oiii ooii oooi oooo is valid" $
+          valid2 "iiii oiii ooii oooi oooo" @? "Is not valid"
+        , testCase
+            "oiii ioii iioi iiio is not valid - any of these words can be rearranged to form any other word" $
+          not (valid2 "oiii ioii iioi iiio") @? "Is valid"
+        , testCase "The solution is 231" $ do
+            phrases <- readPassphrases "../resources/day_4.txt"
+            (length . filter valid2) phrases @?= 231
         ]
     ]
