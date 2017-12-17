@@ -1,15 +1,38 @@
 {-# LANGUAGE OverloadedLists #-}
 
-import qualified Data.Vector as V
-import Test.Tasty
-import Test.Tasty.HUnit
-import Day3
-import Day4
+import           Data.Proxy                 (Proxy (Proxy))
+import qualified Data.Vector                as V
+import           Day3
+import           Day4
 import qualified Day5
+import           Test.Tasty
+import           Test.Tasty.ExpectedFailure
+import           Test.Tasty.HUnit
+import           Test.Tasty.Options
+
+newtype SlowTests = SlowTests Bool
+
+instance IsOption SlowTests where
+  defaultValue = SlowTests False
+  parseValue = fmap SlowTests . safeRead
+  optionName = return "slow-tests"
+  optionHelp = return "Run the slow tests"
+  optionCLParser = flagCLParser Nothing (SlowTests True)
+
+slowTestCase :: TestName -> Assertion -> TestTree
+slowTestCase name assertion =
+  askOption
+    (\(SlowTests runSlowTests) ->
+       (if runSlowTests
+          then id
+          else ignoreTest) $
+       testCase name assertion)
 
 main :: IO ()
-main = defaultMain $ testGroup "Advent of Code 2017"
-  [ day3tests, day4tests, day5tests ]
+main =
+  defaultMainWithIngredients
+    (includingOptions [Option (Proxy :: Proxy SlowTests)] : defaultIngredients) $
+  testGroup "Advent of Code 2017" [day3tests, day4tests, day5tests]
 
 day3tests =
   testGroup
@@ -106,7 +129,7 @@ day5tests =
            [ testCase "The example takes 10 steps" $ do
                steps <- Day5.steps Day5.part2 example
                steps @?= 10
-           , testCase "The solution is 26395586" $ do
+           , slowTestCase "The solution is 26395586" $ do
                instructions <- Day5.getInstructions
                steps <- Day5.steps Day5.part2 instructions
                steps @?= 26395586

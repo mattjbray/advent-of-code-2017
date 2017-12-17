@@ -51,5 +51,6 @@ tests:
     dependencies:
     - aoc2017
     - tasty
+    - tasty-expected-failure
     - tasty-hunit
     - vector
