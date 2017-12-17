@@ -27,6 +27,7 @@ library:
   dependencies:
     - lens
     - containers
+    - vector
 
 executables:
   aoc2017-exe:
@@ -51,3 +52,4 @@ tests:
     - aoc2017
     - tasty
     - tasty-hunit
+    - vector

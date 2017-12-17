@@ -1,11 +1,15 @@
+{-# LANGUAGE OverloadedLists #-}
+
+import qualified Data.Vector as V
 import Test.Tasty
 import Test.Tasty.HUnit
 import Day3
 import Day4
+import qualified Day5
 
 main :: IO ()
 main = defaultMain $ testGroup "Advent of Code 2017"
-  [ day3tests, day4tests ]
+  [ day3tests, day4tests, day5tests ]
 
 day3tests =
   testGroup
@@ -81,3 +85,26 @@ day4tests =
             (length . filter valid2) phrases @?= 231
         ]
     ]
+
+
+day5tests =
+  let example = [0, 3, 0, 1, -3]
+  in testGroup
+       "Day 5"
+       [ testGroup
+           "Part 1"
+           [ testCase "The example takes 5 steps" $
+             Day5.steps Day5.part1 example @?= 5
+           , testCase "The solution is 373160" $ do
+               instructions <- Day5.getInstructions
+               Day5.steps Day5.part1 instructions @?= 373160
+           ]
+       , testGroup
+           "Part 2"
+           [ testCase "The example takes 10 steps" $
+             Day5.steps Day5.part2 example @?= 10
+           , testCase "The solution is 26395586" $ do
+               instructions <- Day5.getInstructions
+               Day5.steps Day5.part2 instructions @?= 26395586
+           ]
+       ]
