@@ -178,4 +178,12 @@ day7tests =
           programs <- Day7.readPrograms "../resources/day_7.txt"
           Day7.bottomProgram . Day7.buildTree <$> programs @?= Just "hlqnsbe"
         ]
+    , testGroup "Part 2"
+        [ testCase "the right weight would be 60" $ do
+          programs <- Day7.readPrograms "../resources/day_7_example.txt"
+          (Day7.sumWeights . Day7.buildTree <$> programs >>= Day7.wrongWeight) @?= Just 60
+        , testCase "the solution is 1993" $ do
+          programs <- Day7.readPrograms "../resources/day_7.txt"
+          (Day7.sumWeights . Day7.buildTree <$> programs >>= Day7.wrongWeight) @?= Just 1993
+        ]
     ]

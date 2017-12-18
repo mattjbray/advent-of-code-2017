@@ -1,11 +1,13 @@
 {-# LANGUAGE NamedFieldPuns #-}
 module Day7 where
 
+import Data.Foldable (asum)
 import Data.Maybe (fromMaybe)
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import Data.Tree
-import Data.List (partition, elem)
+import Data.List (partition, elem, find)
+import qualified Data.MultiSet as MS
 
 type Parser = Parsec () String
 
@@ -60,3 +62,42 @@ buildTree programs =
 
 bottomProgram :: ProgramTree -> String
 bottomProgram = fst . rootLabel
+
+sumWeights :: ProgramTree -> Tree (String, Int, Int)
+sumWeights (Node (name, weight) children) =
+  let children' = sumWeights <$> children
+      childWeight = sum ((\(_,_,w) -> w) . rootLabel <$> children')
+  in Node (name, weight, weight + childWeight) children'
+
+wrongWeight :: Tree (String, Int, Int) -> Maybe Int
+wrongWeight (Node _ children) =
+  case asum (wrongWeight <$> children) of
+    Just x -> Just x
+    Nothing ->
+      let childWeights =
+            MS.fromList ((\(_, _, w) -> w) . rootLabel <$> children)
+      in if MS.distinctSize childWeights > 1 then
+        case leastAndMostCommonElems childWeights of
+          Just (wrongWeight, correctWeight) -> do
+            Node (_, weight, _) _ <- find (\(Node (_, _, w) _) -> w == wrongWeight) children
+            Just $ weight + correctWeight - wrongWeight
+          _ -> Nothing
+      else Nothing
+
+{-| Get the least and most frequently occurring elements of a MultiSet. -}
+leastAndMostCommonElems :: MS.MultiSet a -> Maybe (a, a)
+leastAndMostCommonElems =
+  fmap (\(least,_,most,_) -> (least, most)) .
+  MS.foldOccur
+    (\elem occur acc ->
+       case acc of
+         Nothing -> Just (elem, occur, elem, occur)
+         Just (leastElem, leastOccur, mostElem, mostOccur) ->
+           if occur < leastOccur then
+             Just (elem, occur, mostElem, mostOccur)
+           else if occur > mostOccur then
+             Just (leastElem, leastOccur, elem, occur)
+           else
+             acc
+             )
+    Nothing

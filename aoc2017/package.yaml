@@ -28,6 +28,7 @@ library:
     - containers
     - lens
     - megaparsec
+    - multiset
     - vector
 
 executables:
