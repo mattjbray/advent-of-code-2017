@@ -6,6 +6,7 @@ import           Day3
 import           Day4
 import qualified Day5
 import qualified Day6
+import qualified Day7
 import           Test.Tasty
 import           Test.Tasty.ExpectedFailure
 import           Test.Tasty.HUnit
@@ -33,7 +34,8 @@ main :: IO ()
 main =
   defaultMainWithIngredients
     (includingOptions [Option (Proxy :: Proxy SlowTests)] : defaultIngredients) $
-  testGroup "Advent of Code 2017" [day3tests, day4tests, day5tests, day6tests]
+  testGroup "Advent of Code 2017"
+    [day3tests, day4tests, day5tests, day6tests, day7tests]
 
 day3tests =
   testGroup
@@ -163,5 +165,17 @@ day6tests =
         , testCase "The solution is 1086" $
           let (_, banks) = Day6.detectLoop Day6.input in
           fst (Day6.detectLoop banks) - 1 @?= 1086
+        ]
+    ]
+
+day7tests =
+  testGroup "Day 7"
+    [ testGroup "Part 1"
+        [ testCase "tknk is at the bottom of the tower" $ do
+          programs <- Day7.readPrograms "../resources/day_7_example.txt"
+          Day7.bottomProgram . Day7.buildTree <$> programs @?= Just "tknk"
+        , testCase "The solution is hlqnsbe" $ do
+          programs <- Day7.readPrograms "../resources/day_7.txt"
+          Day7.bottomProgram . Day7.buildTree <$> programs @?= Just "hlqnsbe"
         ]
     ]
