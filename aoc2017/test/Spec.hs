@@ -5,6 +5,7 @@ import qualified Data.Vector                as V
 import           Day3
 import           Day4
 import qualified Day5
+import qualified Day6
 import           Test.Tasty
 import           Test.Tasty.ExpectedFailure
 import           Test.Tasty.HUnit
@@ -32,7 +33,7 @@ main :: IO ()
 main =
   defaultMainWithIngredients
     (includingOptions [Option (Proxy :: Proxy SlowTests)] : defaultIngredients) $
-  testGroup "Advent of Code 2017" [day3tests, day4tests, day5tests]
+  testGroup "Advent of Code 2017" [day3tests, day4tests, day5tests, day6tests]
 
 day3tests =
   testGroup
@@ -135,3 +136,24 @@ day5tests =
                steps @?= 26395586
            ]
        ]
+
+day6tests =
+  let example = [0, 2, 7, 0] in
+  testGroup "Day 6"
+    [ testGroup "Part 1"
+        [ testCase "After one cycle" $
+          iterate Day6.reallocateCycle example !! 1 @?= [2, 4, 1, 2]
+        , testCase "After two cycles" $
+          iterate Day6.reallocateCycle example !! 2 @?= [3, 1, 2, 3]
+        , testCase "After three cycles" $
+          iterate Day6.reallocateCycle example !! 3 @?= [0, 2, 3, 4]
+        , testCase "After four cycles" $
+          iterate Day6.reallocateCycle example !! 4 @?= [1, 3, 4, 1]
+        , testCase "After five cycles" $
+          iterate Day6.reallocateCycle example !! 5 @?= [2, 4, 1, 2]
+        , testCase "It detects the loop" $
+          Day6.detectLoop example @?= 5
+        , testCase "The solution is 5042" $
+          Day6.detectLoop Day6.input @?= 5042
+        ]
+    ]
