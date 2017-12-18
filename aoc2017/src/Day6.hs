@@ -24,7 +24,7 @@ reallocateCycle banks =
   in
   redistribute (i + 1) maxVal banks'
 
-detectLoop :: Vector Int -> Int
+detectLoop :: Vector Int -> (Int, Vector Int)
 detectLoop banks =
   go Set.empty 1 banks
   where
@@ -32,7 +32,7 @@ detectLoop banks =
       let banks' = reallocateCycle banks
       in
         if Set.member banks' seen then
-          i
+          (i, banks')
         else
           go (Set.insert banks' seen) (i + 1) banks'
 

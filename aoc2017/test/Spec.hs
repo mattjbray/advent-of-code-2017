@@ -152,8 +152,16 @@ day6tests =
         , testCase "After five cycles" $
           iterate Day6.reallocateCycle example !! 5 @?= [2, 4, 1, 2]
         , testCase "It detects the loop" $
-          Day6.detectLoop example @?= 5
+          Day6.detectLoop example @?= (5, [2, 4, 1, 2])
         , testCase "The solution is 5042" $
-          Day6.detectLoop Day6.input @?= 5042
+          fst (Day6.detectLoop Day6.input) @?= 5042
+        ]
+    , testGroup "Part 2"
+        [ testCase "Example" $
+          let (_, banks) = Day6.detectLoop example in
+          fst (Day6.detectLoop banks) - 1 @?= 4
+        , testCase "The solution is 1086" $
+          let (_, banks) = Day6.detectLoop Day6.input in
+          fst (Day6.detectLoop banks) - 1 @?= 1086
         ]
     ]
