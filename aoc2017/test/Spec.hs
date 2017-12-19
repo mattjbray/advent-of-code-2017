@@ -7,6 +7,7 @@ import           Day4
 import qualified Day5
 import qualified Day6
 import qualified Day7
+import qualified Day8
 import           Test.Tasty
 import           Test.Tasty.ExpectedFailure
 import           Test.Tasty.HUnit
@@ -35,7 +36,7 @@ main =
   defaultMainWithIngredients
     (includingOptions [Option (Proxy :: Proxy SlowTests)] : defaultIngredients) $
   testGroup "Advent of Code 2017"
-    [day3tests, day4tests, day5tests, day6tests, day7tests]
+    [day3tests, day4tests, day5tests, day6tests, day7tests, day8tests]
 
 day3tests =
   testGroup
@@ -185,5 +186,24 @@ day7tests =
         , testCase "the solution is 1993" $ do
           programs <- Day7.readPrograms "../resources/day_7.txt"
           (Day7.sumWeights . Day7.buildTree <$> programs >>= Day7.wrongWeight) @?= Just 1993
+        ]
+    ]
+
+day8tests =
+  testGroup "Day 8"
+    [ testGroup "Part 1"
+        [ testCase "Because a starts at 0, it is not greater than 1, and so b is not modified" $
+          Day8.run . take 1 <$> Day8.parseInstructions Day8.example @?= Right []
+        , testCase "a is increased by 1 (to 1) because b is less than 5 (it is 0)" $
+          Day8.run . take 2 <$> Day8.parseInstructions Day8.example @?= Right [("a", 1)]
+        , testCase "c is decreased by -10 (to 10) because a is now greater than or equal to 1 (it is 1)" $
+          Day8.run . take 3 <$> Day8.parseInstructions Day8.example @?= Right [("a", 1), ("c", 10)]
+        , testCase "c is increased by -20 (to -10) because c is equal to 10" $
+          Day8.run . take 4 <$> Day8.parseInstructions Day8.example @?= Right [("a", 1), ("c", -10)]
+        , testCase "After this process, the largest value in any register is 1" $
+          Day8.solve <$> Day8.parseInstructions Day8.example @?= Right 1
+        , testCase "the solution is 3089" $ do
+          is <- Day8.parseInstructions <$> readFile "../resources/day_8.txt"
+          Day8.solve <$> is @?= Right 3089
         ]
     ]
