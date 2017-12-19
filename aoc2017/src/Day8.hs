@@ -38,20 +38,21 @@ instruction :: Parser Instruction
 instruction = do
   iRegister <- some letterChar
   spaceChar
-  op <- operation
-  spaceChar
-  val <- int
-  let iOperation i = i `op` val
+  iOperation <- operation
   string " if "
   iCondition <- condition
   eol
   return $ Instruction { iRegister, iOperation, iCondition }
 
-operation :: Parser (Int -> Int -> Int)
-operation = choice
-  [ const (+) <$> string "inc"
-  , const (-) <$> string "dec"
-  ]
+operation :: Parser (Int -> Int)
+operation = do
+  op <- choice
+    [ const (+) <$> string "inc"
+    , const (-) <$> string "dec"
+    ]
+  spaceChar
+  val <- int
+  return $ \i -> i `op` val
 
 condition :: Parser Condition
 condition = do
@@ -76,16 +77,25 @@ interpret :: Map String Int -> Instruction -> Map String Int
 interpret env inst =
   let cond = iCondition inst
       cVal = fromMaybe 0 $ M.lookup (cRegister cond) env
-  in
-    if (cPredicate cond) cVal then
-      let register = iRegister inst
-          val = fromMaybe 0 $ M.lookup register env
-      in M.insert register ((iOperation inst) val) env
-    else
-      env
+  in if (cPredicate cond) cVal then
+       let register = iRegister inst
+           val = fromMaybe 0 $ M.lookup register env
+       in M.insert register ((iOperation inst) val) env
+     else
+       env
 
 run :: [Instruction] -> Map String Int
 run = foldl interpret M.empty
 
 solve :: [Instruction] -> Int
 solve = maximum . M.elems . run
+
+runMax :: [Instruction] -> Int
+runMax =
+  snd .
+  foldl
+    (\(env, m) i ->
+       let env' = interpret env i
+           m' = foldl max 0 . M.elems $ env'
+       in (env', max m m'))
+    (M.empty, 0)

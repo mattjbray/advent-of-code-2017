@@ -206,4 +206,11 @@ day8tests =
           is <- Day8.parseInstructions <$> readFile "../resources/day_8.txt"
           Day8.solve <$> is @?= Right 3089
         ]
+    , testGroup "Part 2"
+        [ testCase "the highest value ever held was 10" $
+          Day8.runMax <$> Day8.parseInstructions Day8.example @?= Right 10
+        , testCase "the solution is 5391" $ do
+          is <- Day8.parseInstructions <$> readFile "../resources/day_8.txt"
+          Day8.runMax <$> is @?= Right 5391
+        ]
     ]
