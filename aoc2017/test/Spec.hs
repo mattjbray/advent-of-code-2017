@@ -10,6 +10,7 @@ import qualified Day7
 import qualified Day8
 import qualified Day9
 import qualified Day10
+import qualified Day11
 import           Test.Tasty
 import           Test.Tasty.ExpectedFailure
 import           Test.Tasty.HUnit
@@ -46,6 +47,7 @@ main =
     , day8tests
     , day9tests
     , day10tests
+    , day11tests
     ]
 
 day3tests =
@@ -330,5 +332,22 @@ day10tests =
       , testCase "the solution is e0387e2ad112b7c2ef344e44885fe4d8" $ do
         hash <- Day10.knotHash <$> readFile "../resources/day_10.txt"
         hash @?= "e0387e2ad112b7c2ef344e44885fe4d8"
+      ]
+    ]
+
+day11tests =
+  testGroup "Day 11"
+    [ testGroup "Part 1"
+      [ testCase "ne,ne,ne is 3 steps away." $
+        Day11.distFromOriginAfterSteps <$> Day11.parseInput "ne,ne,ne" @?= Right 3
+      , testCase "ne,ne,sw,sw is 0 steps away (back where you started)." $
+        Day11.distFromOriginAfterSteps <$> Day11.parseInput "ne,ne,sw,sw" @?= Right 0
+      , testCase "ne,ne,s,s is 2 steps away (se,se)." $
+        Day11.distFromOriginAfterSteps <$> Day11.parseInput "ne,ne,s,s" @?= Right 2
+      , testCase "se,sw,se,sw,sw is 3 steps away (s,s,sw)."  $
+        Day11.distFromOriginAfterSteps <$> Day11.parseInput "se,sw,se,sw,sw" @?= Right 3
+      , testCase "the solution is 784" $ do
+        steps <- Day11.parseInput <$> readFile "../resources/day_11.txt"
+        Day11.distFromOriginAfterSteps <$> steps @?= Right 784
       ]
     ]
