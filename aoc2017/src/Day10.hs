@@ -6,6 +6,9 @@ import qualified Data.Vector as V
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import Data.List (intercalate, mapAccumL)
+import Data.List.Split (chunksOf)
+import Text.Printf (printf)
+import Data.Bits (xor)
 
 data Acc = Acc
   { xs :: Vector Int
@@ -90,3 +93,25 @@ parseInput input =
   where
     parser :: Parsec () String [Int]
     parser = sepBy (read <$> some digitChar) (char ',')
+
+-- Part 2
+
+lengthsSuffix = [17, 31, 73, 47, 23]
+
+inputToBytes :: String -> [Int]
+inputToBytes = (++ lengthsSuffix) . map fromEnum
+
+denseHash :: [Int] -> [Int]
+denseHash sparseHash =
+  map (foldl1 xor) . chunksOf 16  $ sparseHash
+
+toHex :: Int -> String
+toHex = printf "%02x"
+
+knotHash :: String -> String
+knotHash =
+  concatMap toHex .
+  denseHash .
+  V.toList . processLengths 256 .
+  concat . take 64 . repeat .
+  inputToBytes

@@ -29,6 +29,7 @@ library:
     - lens
     - megaparsec
     - multiset
+    - split
     - vector
 
 executables:

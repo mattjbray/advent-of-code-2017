@@ -313,4 +313,22 @@ day10tests =
            lengths <- Day10.parseInput <$> readFile "../resources/day_10.txt"
            Day10.solve 256 <$> lengths @?= Right 11375
          ]
+    , let exampleLengths = [3, 4, 1, 5] ++ Day10.lengthsSuffix
+      in testGroup "Part 2"
+      [ testCase "if you are given 1,2,3, your final sequence of lengths should be 49,44,50,44,51,17,31,73,47,23" $
+        Day10.inputToBytes "1,2,3" @?= [49,44,50,44,51,17,31,73,47,23]
+      , testGroup "Here are some example hashes"
+        [ testCase "The empty string becomes a2582a3a0e66e6e86e3812dcb672a272" $
+          Day10.knotHash "" @?= "a2582a3a0e66e6e86e3812dcb672a272"
+        , testCase "AoC 2017 becomes 33efeb34ea91902bb2f59c9920caa6cd" $
+          Day10.knotHash "AoC 2017" @?= "33efeb34ea91902bb2f59c9920caa6cd"
+        , testCase "1,2,3 becomes 3efbe78a8d82f29979031a4aa0b16a9d" $
+          Day10.knotHash "1,2,3" @?= "3efbe78a8d82f29979031a4aa0b16a9d"
+        , testCase "1,2,4 becomes 63960835bcdc130f0b66d7ff4f6a5a8e" $
+          Day10.knotHash "1,2,4" @?= "63960835bcdc130f0b66d7ff4f6a5a8e"
+        ]
+      , testCase "the solution is e0387e2ad112b7c2ef344e44885fe4d8" $ do
+        hash <- Day10.knotHash <$> readFile "../resources/day_10.txt"
+        hash @?= "e0387e2ad112b7c2ef344e44885fe4d8"
+      ]
     ]
