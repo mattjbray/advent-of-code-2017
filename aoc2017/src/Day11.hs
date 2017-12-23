@@ -72,10 +72,23 @@ step CubeCoOrd { x, y, z} dir =
       , z
       }
 
+origin :: CubeCoOrd
+origin = CubeCoOrd 0 0 0
+
 distFromOrigin :: CubeCoOrd -> Int
 distFromOrigin (CubeCoOrd {x, y, z}) =
   (abs x + abs y + abs z) `div` 2
 
 distFromOriginAfterSteps :: [Dir] -> Int
 distFromOriginAfterSteps =
-  distFromOrigin . foldl step (CubeCoOrd 0 0 0)
+  distFromOrigin . foldl step origin
+
+maxDistFromOrigin :: [Dir] -> Int
+maxDistFromOrigin =
+  fst .
+  foldl
+    (\(maxDist, position) dir ->
+       ( max maxDist (distFromOrigin position)
+       , step position dir
+       ))
+  (0, origin)

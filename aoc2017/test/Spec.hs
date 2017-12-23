@@ -350,4 +350,9 @@ day11tests =
         steps <- Day11.parseInput <$> readFile "../resources/day_11.txt"
         Day11.distFromOriginAfterSteps <$> steps @?= Right 784
       ]
+    , testGroup "Part 2"
+      [ testCase "the solution is 1558" $ do
+        steps <- Day11.parseInput <$> readFile "../resources/day_11.txt"
+        Day11.maxDistFromOrigin <$> steps @?= Right 1558
+      ]
     ]
