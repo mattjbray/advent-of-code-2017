@@ -8,6 +8,7 @@ import qualified Day5
 import qualified Day6
 import qualified Day7
 import qualified Day8
+import qualified Day9
 import           Test.Tasty
 import           Test.Tasty.ExpectedFailure
 import           Test.Tasty.HUnit
@@ -36,7 +37,7 @@ main =
   defaultMainWithIngredients
     (includingOptions [Option (Proxy :: Proxy SlowTests)] : defaultIngredients) $
   testGroup "Advent of Code 2017"
-    [day3tests, day4tests, day5tests, day6tests, day7tests, day8tests]
+    [day3tests, day4tests, day5tests, day6tests, day7tests, day8tests, day9tests]
 
 day3tests =
   testGroup
@@ -213,4 +214,66 @@ day8tests =
           is <- Day8.parseInstructions <$> readFile "../resources/day_8.txt"
           Day8.runMax <$> is @?= Right 5391
         ]
+    ]
+
+day9tests =
+  testGroup "Day 9"
+    [ testGroup "Part 1"
+      [ testGroup "Here are some self-contained pieces of garbage"
+        [ testCase "empty garbage" $
+          Day9.parse Day9.garbage "" "<>" @?= Right Day9.Garbage
+        , testCase "garbage containing random characters" $
+          Day9.parse Day9.garbage "" "<random characters>" @?= Right Day9.Garbage
+        , testCase "because the extra < are ignored" $
+          Day9.parse Day9.garbage "" "<<<<>" @?= Right Day9.Garbage
+        , testCase "because the first > is canceled" $
+          Day9.parse Day9.garbage "" "<{!>}>" @?= Right Day9.Garbage
+        , testCase "because the second ! is canceled, allowing the > to terminate the garbage" $
+          Day9.parse Day9.garbage "" "<!!>" @?= Right Day9.Garbage
+        , testCase "because the second ! and the first > are canceled" $
+          Day9.parse Day9.garbage "" "<!!!>>" @?= Right Day9.Garbage
+        , testCase "which ends at the first >" $
+          Day9.parse Day9.garbage "" "<{o\"i!a,<{i<a>" @?= Right Day9.Garbage
+        ]
+      , testGroup "Here are some examples of whole streams and the number of groups they contain"
+        [ testCase "1 group" $
+          Day9.countGroups <$> Day9.parse Day9.group "" "{}" @?= Right 1
+        , testCase "3 groups" $
+          Day9.countGroups <$> Day9.parse Day9.group "" "{{{}}}" @?= Right 3
+        , testCase "also 3 groups" $
+          Day9.countGroups <$> Day9.parse Day9.group "" "{{},{}}" @?= Right 3
+        , testCase "6 groups" $
+          Day9.countGroups <$> Day9.parse Day9.group "" "{{{},{},{{}}}}" @?= Right 6
+        , testCase "1 group (which itself contains garbage)" $
+          Day9.countGroups <$> Day9.parse Day9.group "" "{<{},{},{{}}>}" @?= Right 1
+        , testCase "1 group" $
+          Day9.countGroups <$> Day9.parse Day9.group "" "{<a>,<a>,<a>,<a>}" @?= Right 1
+        , testCase "5 groups" $
+          Day9.countGroups <$> Day9.parse Day9.group "" "{{<a>},{<a>},{<a>},{<a>}}" @?= Right 5
+        , testCase "2 groups (since all but the last > are canceled)" $
+          Day9.countGroups <$> Day9.parse Day9.group "" "{{<!>},{<!>},{<!>},{<a>}}" @?= Right 2
+        ]
+      , testGroup "Each group is assigned a score which is one more than the score of the group that immediately contains it"
+        [ testCase "score of 1" $
+          Day9.score <$> Day9.parse Day9.group "" "{}" @?= Right 1
+        , testCase "score of 1 + 2 + 3 = 6" $
+          Day9.score <$> Day9.parse Day9.group "" "{{{}}}" @?= Right 6
+        , testCase "score of 1 + 2 + 2 = 5" $
+          Day9.score <$> Day9.parse Day9.group "" "{{},{}}" @?= Right 5
+        , testCase "score of 1 + 2 + 3 + 3 + 3 + 4 = 16" $
+          Day9.score <$> Day9.parse Day9.group "" "{{{},{},{{}}}}" @?= Right 16
+        , testCase "score of 1" $
+          Day9.score <$> Day9.parse Day9.group "" "{<a>,<a>,<a>,<a>}" @?= Right 1
+        , testCase "score of 1 + 2 + 2 + 2 + 2 = 9" $
+          Day9.score <$> Day9.parse Day9.group "" "{{<ab>},{<ab>},{<ab>},{<ab>}}" @?= Right 9
+        , testCase "score of 1 + 2 + 2 + 2 + 2 = 9" $
+          Day9.score <$> Day9.parse Day9.group "" "{{<!!>},{<!!>},{<!!>},{<!!>}}" @?= Right 9
+        , testCase "score of 1 + 2 = 3" $
+          Day9.score <$> Day9.parse Day9.group "" "{{<a!>},{<a!>},{<a!>},{<ab>}}" @?= Right 3
+        ]
+      , testCase "the solution is 17537" $ do
+          group <- Day9.parse Day9.group "day_9.txt" <$> readFile "../resources/day_9.txt"
+          Day9.score <$> group @?= Right 17537
+      ]
+
     ]
