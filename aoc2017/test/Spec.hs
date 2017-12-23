@@ -9,6 +9,7 @@ import qualified Day6
 import qualified Day7
 import qualified Day8
 import qualified Day9
+import qualified Day10
 import           Test.Tasty
 import           Test.Tasty.ExpectedFailure
 import           Test.Tasty.HUnit
@@ -37,7 +38,15 @@ main =
   defaultMainWithIngredients
     (includingOptions [Option (Proxy :: Proxy SlowTests)] : defaultIngredients) $
   testGroup "Advent of Code 2017"
-    [day3tests, day4tests, day5tests, day6tests, day7tests, day8tests, day9tests]
+    [ day3tests
+    , day4tests
+    , day5tests
+    , day6tests
+    , day7tests
+    , day8tests
+    , day9tests
+    , day10tests
+    ]
 
 day3tests =
   testGroup
@@ -283,4 +292,25 @@ day9tests =
           group <- puzzleInput
           Day9.countGarbage <$> group @?= Right 7539
       ]
+    ]
+
+day10tests =
+  testGroup "Day 10"
+    [ let listSize = 5
+          exampleLengths = [3, 4, 1, 5]
+      in testGroup "Part 1"
+         [ testCase "after 1 step" $
+           Day10.processLengths listSize (take 1 exampleLengths) @?= [2, 1, 0, 3, 4]
+         , testCase "after 2 steps" $
+           Day10.processLengths listSize (take 2 exampleLengths) @?= [4, 3, 0, 1, 2]
+         , testCase "after 3 steps" $
+           Day10.processLengths listSize (take 3 exampleLengths) @?= [4, 3, 0, 1, 2]
+         , testCase "after 4 steps" $
+           Day10.processLengths listSize (take 4 exampleLengths) @?= [3, 4, 2, 1, 0]
+         , testCase "check the process" $
+           Day10.solve listSize exampleLengths @?= 12
+         , testCase "the solution is 11375" $ do
+           lengths <- Day10.parseInput <$> readFile "../resources/day_10.txt"
+           Day10.solve 256 <$> lengths @?= Right 11375
+         ]
     ]
