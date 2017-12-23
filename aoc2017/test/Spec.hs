@@ -11,6 +11,7 @@ import qualified Day8
 import qualified Day9
 import qualified Day10
 import qualified Day11
+import qualified Day12
 import           Test.Tasty
 import           Test.Tasty.ExpectedFailure
 import           Test.Tasty.HUnit
@@ -48,6 +49,7 @@ main =
     , day9tests
     , day10tests
     , day11tests
+    , day12tests
     ]
 
 day3tests =
@@ -354,5 +356,17 @@ day11tests =
       [ testCase "the solution is 1558" $ do
         steps <- Day11.parseInput <$> readFile "../resources/day_11.txt"
         Day11.maxDistFromOrigin <$> steps @?= Right 1558
+      ]
+    ]
+
+day12tests =
+  testGroup "Day 12"
+    [ testGroup "Part 1"
+      [ testCase "the example contains 6 programs in the group containing 0" $ do
+        programs <- Day12.parseInput <$> readFile "../resources/day_12_example.txt"
+        Day12.connectedPrograms 0 <$> programs @?= Right [0, 2, 3, 4, 5, 6]
+      , testCase "the solution is 113" $ do
+        programs <- Day12.parseInput <$> readFile "../resources/day_12.txt"
+        length . Day12.connectedPrograms 0 <$> programs @?= Right 113
       ]
     ]
