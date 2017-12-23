@@ -131,3 +131,25 @@ parseInput input =
     parser :: Parsec () String Firewall
     parser =
       initFirewall <$> sepEndBy entry eol
+
+canPass :: [IntMap Layer] -> Bool
+canPass layerStates =
+  all (\(i, layers) ->
+           case M.lookup i layers of
+             Nothing -> True
+             Just (Layer { scannerPosition }) ->
+               scannerPosition /= 0
+           ) .
+  zip [0..] $ layerStates
+
+findDelay :: Firewall -> Int
+findDelay (Firewall { layers }) =
+  let (maxDepth, _) = M.findMax layers
+      layerStates = take (maxDepth + 1) . iterate stepScanners $ layers
+  in
+    go 0 (last layerStates) layerStates
+    where go i lastLayers layerStates =
+            if canPass layerStates then i
+            else
+              let layers = stepScanners lastLayers
+              in go (i + 1) layers (drop 1 layerStates ++ [layers])

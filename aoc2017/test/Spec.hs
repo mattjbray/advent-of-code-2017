@@ -390,4 +390,11 @@ day13tests =
         firewall <- Day13.parseInput <$> readFile "../resources/day_13.txt"
         Day13.severity <$> firewall @?= Right 1300
       ]
+    , testGroup "Part 2"
+      [ testCase "the fewest number of picoseconds you would need to delay to get through safely is 10" $
+        Day13.findDelay (Day13.initFirewall [(0, 3), (1, 2), (4, 4), (6, 4)]) @?= 10
+      , slowTestCase "the solution is 3870382" $ do
+        firewall <- Day13.parseInput <$> readFile "../resources/day_13.txt"
+        Day13.findDelay <$> firewall @?= Right 3870382
+      ]
     ]
