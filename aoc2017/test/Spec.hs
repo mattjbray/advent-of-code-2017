@@ -369,4 +369,12 @@ day12tests =
         programs <- Day12.parseInput <$> readFile "../resources/day_12.txt"
         length . Day12.connectedPrograms 0 <$> programs @?= Right 113
       ]
+    , testGroup "Part 2"
+      [ testCase "the example contains 2 groups" $ do
+        programs <- Day12.parseInput <$> readFile "../resources/day_12_example.txt"
+        length . Day12.groups <$> programs @?= Right 2
+      , testCase "the solution is 202" $ do
+        programs <- Day12.parseInput <$> readFile "../resources/day_12.txt"
+        length . Day12.groups <$> programs @?= Right 202
+      ]
     ]

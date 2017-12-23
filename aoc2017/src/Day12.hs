@@ -33,3 +33,16 @@ connectedPrograms n programs =
           directs = S.difference (fromMaybe S.empty (M.lookup n programs)) seen'
           indirects = S.unions . map (go seen') . S.toList $ directs
       in S.unions [S.singleton n, directs, indirects]
+
+groups :: IntMap (Set Int) -> Set (Set Int)
+groups programs =
+  fst .
+  foldl (\(result, seen) n ->
+           if S.member n seen then
+             (result, seen)
+           else
+             let group = connectedPrograms n programs
+             in (S.insert group result, S.union group seen )
+           )
+  (S.empty, S.empty) $
+  (M.keys programs)
