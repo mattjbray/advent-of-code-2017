@@ -217,23 +217,26 @@ day8tests =
     ]
 
 day9tests =
+  let puzzleInput =
+        Day9.parse Day9.group "day_9.txt" <$> readFile "../resources/day_9.txt"
+  in
   testGroup "Day 9"
     [ testGroup "Part 1"
       [ testGroup "Here are some self-contained pieces of garbage"
         [ testCase "empty garbage" $
-          Day9.parse Day9.garbage "" "<>" @?= Right Day9.Garbage
+          Day9.parse Day9.garbage "" "<>" @?= Right (Day9.Garbage 0)
         , testCase "garbage containing random characters" $
-          Day9.parse Day9.garbage "" "<random characters>" @?= Right Day9.Garbage
+          Day9.parse Day9.garbage "" "<random characters>" @?= Right (Day9.Garbage 17)
         , testCase "because the extra < are ignored" $
-          Day9.parse Day9.garbage "" "<<<<>" @?= Right Day9.Garbage
+          Day9.parse Day9.garbage "" "<<<<>" @?= Right (Day9.Garbage 3)
         , testCase "because the first > is canceled" $
-          Day9.parse Day9.garbage "" "<{!>}>" @?= Right Day9.Garbage
+          Day9.parse Day9.garbage "" "<{!>}>" @?= Right (Day9.Garbage 2)
         , testCase "because the second ! is canceled, allowing the > to terminate the garbage" $
-          Day9.parse Day9.garbage "" "<!!>" @?= Right Day9.Garbage
+          Day9.parse Day9.garbage "" "<!!>" @?= Right (Day9.Garbage 0)
         , testCase "because the second ! and the first > are canceled" $
-          Day9.parse Day9.garbage "" "<!!!>>" @?= Right Day9.Garbage
+          Day9.parse Day9.garbage "" "<!!!>>" @?= Right (Day9.Garbage 0)
         , testCase "which ends at the first >" $
-          Day9.parse Day9.garbage "" "<{o\"i!a,<{i<a>" @?= Right Day9.Garbage
+          Day9.parse Day9.garbage "" "<{o\"i!a,<{i<a>" @?= Right (Day9.Garbage 10)
         ]
       , testGroup "Here are some examples of whole streams and the number of groups they contain"
         [ testCase "1 group" $
@@ -272,8 +275,12 @@ day9tests =
           Day9.score <$> Day9.parse Day9.group "" "{{<a!>},{<a!>},{<a!>},{<ab>}}" @?= Right 3
         ]
       , testCase "the solution is 17537" $ do
-          group <- Day9.parse Day9.group "day_9.txt" <$> readFile "../resources/day_9.txt"
+          group <- puzzleInput
           Day9.score <$> group @?= Right 17537
       ]
-
+    , testGroup "Part 2"
+      [ testCase "the solution is 7539" $ do
+          group <- puzzleInput
+          Day9.countGarbage <$> group @?= Right 7539
+      ]
     ]

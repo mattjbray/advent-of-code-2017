@@ -3,6 +3,7 @@ module Day9
   ( Contents(..)
   , Garbage(..)
   , Group(..)
+  , countGarbage
   , countGroups
   , garbage
   , group
@@ -20,7 +21,7 @@ data Group = Group
   { gContents :: [Contents] }
   deriving (Eq, Show)
 
-data Garbage = Garbage
+data Garbage = Garbage Int
   deriving (Eq, Show)
 
 data Contents
@@ -37,12 +38,13 @@ group = do
 
 garbage :: Parser Garbage
 garbage = do
-  between (char '<') (char '>') $
-    many $ choice
-      [ char '!' >> anyChar >> return ()
-      , satisfy (\c -> c /= '>') >> return ()
-      ]
-  return Garbage
+  count <-
+    between (char '<') (char '>') $
+      many $ choice
+        [ char '!' >> anyChar >> return 0
+        , satisfy (\c -> c /= '>') >> return 1
+        ]
+  return $ Garbage (sum count)
 
 countGroups :: Group -> Int
 countGroups (Group {gContents}) =
@@ -68,3 +70,13 @@ score group = go 0 group
               CGroup group -> go (n + 1) group
               CGarbage _ -> 0) $
        gContents)
+
+countGarbage :: Group -> Int
+countGarbage (Group {gContents}) =
+  sum .
+  map
+    (\contents ->
+       case contents of
+         CGroup group -> countGarbage group
+         CGarbage (Garbage i) -> i) $
+  gContents
