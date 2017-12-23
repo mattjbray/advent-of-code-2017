@@ -12,6 +12,7 @@ import qualified Day9
 import qualified Day10
 import qualified Day11
 import qualified Day12
+import qualified Day13
 import           Test.Tasty
 import           Test.Tasty.ExpectedFailure
 import           Test.Tasty.HUnit
@@ -50,6 +51,7 @@ main =
     , day10tests
     , day11tests
     , day12tests
+    , day13tests
     ]
 
 day3tests =
@@ -376,5 +378,16 @@ day12tests =
       , testCase "the solution is 202" $ do
         programs <- Day12.parseInput <$> readFile "../resources/day_12.txt"
         length . Day12.groups <$> programs @?= Right 202
+      ]
+    ]
+
+day13tests =
+  testGroup "Day 13"
+    [ testGroup "Part 1"
+      [ testCase "In the example above, the trip severity is 0*3 + 6*4 = 24" $
+        Day13.severity (Day13.initFirewall [(0, 3), (1, 2), (4, 4), (6, 4)]) @?= 24
+      , testCase "the solution is 1300" $ do
+        firewall <- Day13.parseInput <$> readFile "../resources/day_13.txt"
+        Day13.severity <$> firewall @?= Right 1300
       ]
     ]
