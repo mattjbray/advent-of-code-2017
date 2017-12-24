@@ -13,6 +13,7 @@ import qualified Day10
 import qualified Day11
 import qualified Day12
 import qualified Day13
+import qualified Day14
 import           Test.Tasty
 import           Test.Tasty.ExpectedFailure
 import           Test.Tasty.HUnit
@@ -52,6 +53,7 @@ main =
     , day11tests
     , day12tests
     , day13tests
+    , day14tests
     ]
 
 day3tests =
@@ -396,5 +398,30 @@ day13tests =
       , slowTestCase "the solution is 3870382" $ do
         firewall <- Day13.parseInput <$> readFile "../resources/day_13.txt"
         Day13.findDelay <$> firewall @?= Right 3870382
+      ]
+    ]
+
+day14tests =
+  testGroup "Day 14"
+    [ let exampleKey = "flqrgnkx"
+          puzzleInput = "stpzcrnm"
+      in testGroup "Part 1"
+      [ testCase "the first 8 rows and columns for key flqrgnkx appear as follows" $
+        (show . Day14.Grid . map (take 8) . take 8 . Day14.getRows . Day14.grid $ exampleKey)
+        @?=
+        unlines
+        [ "##.#.#.."
+        , ".#.#.#.#"
+        , "....#.#."
+        , "#.#.##.#"
+        , ".##.#..."
+        , "##..#..#"
+        , ".#...#.."
+        , "##.#.##."
+        ]
+      , testCase "in this example, 8108 squares are used" $
+        Day14.countUsed (Day14.grid exampleKey) @?= 8108
+      , testCase "the solution is 8250" $ do
+        Day14.countUsed (Day14.grid puzzleInput) @?= 8250
       ]
     ]
