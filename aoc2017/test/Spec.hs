@@ -447,10 +447,26 @@ day15tests =
             , (1352636452, 285222916)
             ]
       , testCase "after processing these five pairs, the judge would have added only 1 to its total" $
-        Day15.judge 5 (65, 8921) @?= 1
+        Day15.judge 5 (Day15.generators (65, 8921)) @?= 1
       , slowTestCase "the judge would eventually find a total of 588 pairs that match in their lowest 16 bits" $
-        Day15.judge 40000000 (65, 8921) @?= 588
-      , slowTestCase "the solution is " $
-        Day15.judge 40000000 (277, 349) @?= 592
+        Day15.judge 40000000 (Day15.generators (65, 8921)) @?= 588
+      , slowTestCase "the solution is 592" $
+        Day15.judge 40000000 (Day15.generators (277, 349)) @?= 592
+      ]
+    , testGroup "Part 2"
+      [ testCase "the first five pairs of generated values are" $
+        (take 5 . Day15.part2Generators $ (65, 8921))
+        @?= [ (1352636452, 1233683848)
+            , (1992081072, 862516352)
+            , (530830436, 1159784568)
+            , (1980017072, 1616057672)
+            , (740335192, 412269392)
+            ]
+      , testCase "it's not until the 1056th pair that the judge finds the first match" $
+        Day15.judge 1056 (Day15.part2Generators (65, 8921)) @?= 1
+      , slowTestCase "after five million pairs, the judge would eventually find a total of 309 pairs that match" $
+        Day15.judge 5000000 (Day15.part2Generators (65, 8921)) @?= 309
+      , slowTestCase "the solution is 320" $
+        Day15.judge 5000000 (Day15.part2Generators (277, 349)) @?= 320
       ]
     ]
