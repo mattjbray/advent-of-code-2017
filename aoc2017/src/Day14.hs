@@ -1,3 +1,4 @@
+{-# LANGUAGE ViewPatterns #-}
 module Day14 where
 
 import Data.Set (Set)
@@ -71,12 +72,10 @@ regions =
   buildNextRegion [] . toPositions
   where
     buildNextRegion :: [Set Pos] -> Set Pos -> [Set Pos]
-    buildNextRegion regions remaining =
-      case Set.minView remaining of
-        Nothing -> regions
-        Just (pos, remaining') ->
-          let (region, remaining'') = findNeighbours remaining' pos
-          in buildNextRegion (region : regions) remaining''
+    buildNextRegion regions (Set.minView -> Nothing) = regions
+    buildNextRegion regions (Set.minView -> Just (pos, remaining)) =
+      let (region, remaining') = findNeighbours remaining pos
+      in buildNextRegion (region : regions) remaining'
 
     findNeighbours :: Set Pos -> Pos -> (Set Pos, Set Pos)
     findNeighbours remaining pos =
