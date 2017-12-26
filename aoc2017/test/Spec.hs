@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedLists #-}
 
+import           Data.Bifunctor             (bimap)
 import           Data.Proxy                 (Proxy (Proxy))
 import qualified Data.Vector                as V
 import           Day3
@@ -14,6 +15,7 @@ import qualified Day11
 import qualified Day12
 import qualified Day13
 import qualified Day14
+import qualified Day15
 import           Test.Tasty
 import           Test.Tasty.ExpectedFailure
 import           Test.Tasty.HUnit
@@ -54,6 +56,7 @@ main =
     , day12tests
     , day13tests
     , day14tests
+    , day15tests
     ]
 
 day3tests =
@@ -429,5 +432,28 @@ day14tests =
         (length . Day14.regions . Day14.grid) exampleKey @?= 1242
       , testCase "the solution is 1113" $ do
         (length . Day14.regions . Day14.grid) puzzleInput @?= 1113
+      ]
+    ]
+
+day15tests =
+   testGroup "Day 15"
+    [ testGroup "Part 1"
+      [ testCase "the first five pairs of generated values are" $
+        (take 5 . drop 1 . iterate (bimap Day15.generatorA Day15.generatorB) $ (65, 8921))
+        @?= [ (1092455, 430625591)
+            , (1181022009, 1233683848)
+            , (245556042, 1431495498)
+            , (1744312007, 137874439)
+            , (1352636452, 285222916)
+            ]
+      , testCase "after processing these five pairs, the judge would have added only 1 to its total" $
+        let (count, _, _) = head . drop 5 . iterate Day15.judge $ (0, 65, 8921)
+        in count @?= 1
+      , slowTestCase "the judge would eventually find a total of 588 pairs that match in their lowest 16 bits" $
+        let (count, _, _) = head . drop 40000000 . iterate Day15.judge $ (0, 65, 8921)
+        in count @?= 588
+      , slowTestCase "the solution is " $
+        let (count, _, _) = head . drop 40000000 . iterate Day15.judge $ (0, 277, 349)
+        in count @?= 0
       ]
     ]
