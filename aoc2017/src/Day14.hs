@@ -1,5 +1,7 @@
 module Day14 where
 
+import Data.Set (Set)
+import qualified Data.Set as Set
 import qualified Day10
 
 newtype Grid = Grid
@@ -39,3 +41,51 @@ hexToBits 'f' = [1, 1, 1, 1]
 countUsed :: Grid -> Int
 countUsed =
   sum . map sum . getRows
+
+type Pos = (Int, Int)
+
+toPositions :: Grid -> Set Pos
+toPositions =
+  Set.fromList .
+  concatMap
+    (\(y, row) ->
+        concatMap
+          (\(x, col) ->
+             if col == 1 then [(x, y)] else []
+          )
+          (zip [0..] row)
+    ) .
+  zip [0..] .
+  getRows
+
+neighbours :: Pos -> Set Pos
+neighbours (x, y) =
+  Set.fromList
+    [ (x, y - 1)
+    , (x - 1, y), (x + 1, y)
+    , (x, y + 1)
+    ]
+
+regions :: Grid -> [Set Pos]
+regions =
+  buildNextRegion [] . toPositions
+  where
+    buildNextRegion :: [Set Pos] -> Set Pos -> [Set Pos]
+    buildNextRegion regions remaining =
+      case Set.minView remaining of
+        Nothing -> regions
+        Just (pos, remaining') ->
+          let (region, remaining'') = findNeighbours remaining' pos
+          in buildNextRegion (region : regions) remaining''
+
+    findNeighbours :: Set Pos -> Pos -> (Set Pos, Set Pos)
+    findNeighbours remaining pos =
+      let ns = remaining `Set.intersection` (neighbours pos)
+          remaining' = remaining `Set.difference` (neighbours pos)
+      in
+        foldl (\(region, remaining) n ->
+                let (region', remaining') = findNeighbours remaining n
+                in (region `Set.union` region', remaining')
+                )
+          (Set.singleton pos, remaining') .
+        Set.toList $ ns

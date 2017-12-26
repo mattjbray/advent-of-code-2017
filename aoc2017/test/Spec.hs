@@ -402,10 +402,10 @@ day13tests =
     ]
 
 day14tests =
-  testGroup "Day 14"
-    [ let exampleKey = "flqrgnkx"
-          puzzleInput = "stpzcrnm"
-      in testGroup "Part 1"
+   let exampleKey = "flqrgnkx"
+       puzzleInput = "stpzcrnm"
+   in testGroup "Day 14"
+    [ testGroup "Part 1"
       [ testCase "the first 8 rows and columns for key flqrgnkx appear as follows" $
         (show . Day14.Grid . map (take 8) . take 8 . Day14.getRows . Day14.grid $ exampleKey)
         @?=
@@ -423,5 +423,11 @@ day14tests =
         Day14.countUsed (Day14.grid exampleKey) @?= 8108
       , testCase "the solution is 8250" $ do
         Day14.countUsed (Day14.grid puzzleInput) @?= 8250
+      ]
+    , testGroup "Part 2"
+      [ testCase "in this example, 1242 regions are present" $
+        (length . Day14.regions . Day14.grid) exampleKey @?= 1242
+      , testCase "the solution is 1113" $ do
+        (length . Day14.regions . Day14.grid) puzzleInput @?= 1113
       ]
     ]
