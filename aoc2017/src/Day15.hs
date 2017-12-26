@@ -1,26 +1,29 @@
+{-# LANGUAGE BinaryLiterals #-}
 module Day15 where
 
-import Data.Word (Word16)
+import Data.Bits ((.&.))
+import Data.Word (Word32)
 
-generator :: Int -> Int -> Int
+generator :: Int -> Int -> [Word32]
 generator factor prev =
-  (prev * factor) `mod` 2147483647
+  let val = (prev * factor) `mod` 2147483647
+  in fromIntegral val : generator factor val
 
 generatorA = generator 16807
 generatorB = generator 48271
 
-judgePair :: (Int, Int) -> Bool
-judgePair (a, b) =
-  (fromIntegral a :: Word16) == (fromIntegral b :: Word16)
+generators (initA, initB) = zip (generatorA initA) (generatorB initB)
 
-judge :: (Int, Int, Int) -> (Int, Int, Int)
-judge (count, prevA, prevB) =
-  let a = generatorA prevA
-      b = generatorB prevB
-      count' =
-        if judgePair (a, b) then
-          count + 1
-        else
-          count
-  in
-    (count', a, b)
+mask :: Word32
+mask = 0b00000000000000001111111111111111
+
+judgePair :: Word32 -> Word32 -> Bool
+judgePair a b =
+  a .&. mask == b .&. mask
+
+judge :: Int -> (Int, Int) -> Int
+judge n inits =
+  length .
+  filter (uncurry judgePair) .
+  take n .
+  generators $ inits

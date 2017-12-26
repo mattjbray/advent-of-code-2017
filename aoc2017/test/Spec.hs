@@ -439,7 +439,7 @@ day15tests =
    testGroup "Day 15"
     [ testGroup "Part 1"
       [ testCase "the first five pairs of generated values are" $
-        (take 5 . drop 1 . iterate (bimap Day15.generatorA Day15.generatorB) $ (65, 8921))
+        (take 5 . Day15.generators $ (65, 8921))
         @?= [ (1092455, 430625591)
             , (1181022009, 1233683848)
             , (245556042, 1431495498)
@@ -447,13 +447,10 @@ day15tests =
             , (1352636452, 285222916)
             ]
       , testCase "after processing these five pairs, the judge would have added only 1 to its total" $
-        let (count, _, _) = head . drop 5 . iterate Day15.judge $ (0, 65, 8921)
-        in count @?= 1
+        Day15.judge 5 (65, 8921) @?= 1
       , slowTestCase "the judge would eventually find a total of 588 pairs that match in their lowest 16 bits" $
-        let (count, _, _) = head . drop 40000000 . iterate Day15.judge $ (0, 65, 8921)
-        in count @?= 588
+        Day15.judge 40000000 (65, 8921) @?= 588
       , slowTestCase "the solution is " $
-        let (count, _, _) = head . drop 40000000 . iterate Day15.judge $ (0, 277, 349)
-        in count @?= 0
+        Day15.judge 40000000 (277, 349) @?= 592
       ]
     ]
