@@ -16,6 +16,7 @@ import qualified Day12
 import qualified Day13
 import qualified Day14
 import qualified Day15
+import qualified Day16
 import           Test.Tasty
 import           Test.Tasty.ExpectedFailure
 import           Test.Tasty.HUnit
@@ -57,6 +58,7 @@ main =
     , day13tests
     , day14tests
     , day15tests
+    , day16tests
     ]
 
 day3tests =
@@ -468,5 +470,28 @@ day15tests =
         Day15.judge 5000000 (Day15.part2Generators (65, 8921)) @?= 309
       , slowTestCase "the solution is 320" $
         Day15.judge 5000000 (Day15.part2Generators (277, 349)) @?= 320
+      ]
+    ]
+
+day16tests =
+   testGroup "Day 16"
+    [ testGroup "Part 1"
+      [ testGroup "with only five programs standing in a line (abcde), they could do the following dance"
+          [ testCase "s1, a spin of size 1" $
+            Day16.dance ['a'..'e'] <$> Day16.parseMoves "s1"
+            @?= Right (V.fromList "eabcd")
+          , testCase "x3/4, swapping the last two programs" $
+            Day16.dance (V.fromList "eabcd") <$> Day16.parseMoves "x3/4"
+            @?= Right (V.fromList "eabdc")
+          , testCase "pe/b, swapping programs e and b" $
+            Day16.dance (V.fromList "eabdc") <$> Day16.parseMoves "pe/b"
+            @?= Right (V.fromList "baedc")
+          ]
+      , testCase "After finishing their dance, the programs end up in order baedc" $
+          Day16.dance ['a'..'e'] <$> Day16.parseMoves "s1,x3/4,pe/b"
+          @?= Right (V.fromList "baedc")
+      , testCase "the solution is dcmlhejnifpokgba" $ do
+          moves <- Day16.parseMoves <$> readFile "../resources/day_16.txt"
+          Day16.dance Day16.line <$> moves @?= Right (V.fromList "dcmlhejnifpokgba")
       ]
     ]
