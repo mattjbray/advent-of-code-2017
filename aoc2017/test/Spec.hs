@@ -474,24 +474,32 @@ day15tests =
     ]
 
 day16tests =
-   testGroup "Day 16"
+  let exampleLine = ['a'..'e']
+      exampleDance =  "s1,x3/4,pe/b"
+  in
+  testGroup "Day 16"
     [ testGroup "Part 1"
       [ testGroup "with only five programs standing in a line (abcde), they could do the following dance"
-          [ testCase "s1, a spin of size 1" $
-            Day16.dance ['a'..'e'] <$> Day16.parseMoves "s1"
+        [ testCase "s1, a spin of size 1" $
+            Day16.dance exampleLine . take 1 <$> Day16.parseMoves exampleDance
             @?= Right (V.fromList "eabcd")
-          , testCase "x3/4, swapping the last two programs" $
-            Day16.dance (V.fromList "eabcd") <$> Day16.parseMoves "x3/4"
+        , testCase "x3/4, swapping the last two programs" $
+            Day16.dance exampleLine . take 2 <$> Day16.parseMoves exampleDance
             @?= Right (V.fromList "eabdc")
-          , testCase "pe/b, swapping programs e and b" $
-            Day16.dance (V.fromList "eabdc") <$> Day16.parseMoves "pe/b"
+        , testCase "pe/b, swapping programs e and b" $
+            Day16.dance exampleLine . take 3 <$> Day16.parseMoves exampleDance
             @?= Right (V.fromList "baedc")
-          ]
-      , testCase "After finishing their dance, the programs end up in order baedc" $
-          Day16.dance ['a'..'e'] <$> Day16.parseMoves "s1,x3/4,pe/b"
-          @?= Right (V.fromList "baedc")
+        ]
       , testCase "the solution is dcmlhejnifpokgba" $ do
           moves <- Day16.parseMoves <$> readFile "../resources/day_16.txt"
           Day16.dance Day16.line <$> moves @?= Right (V.fromList "dcmlhejnifpokgba")
+      ]
+    , testGroup "Part 2"
+      [ testCase "after their second dance" $ do
+          Day16.dances 2 exampleLine <$> Day16.parseMoves exampleDance
+          @?= Right (V.fromList "ceadb")
+      , testCase "the solution is" $ do
+          moves <- Day16.parseMoves <$> readFile "../resources/day_16.txt"
+          Day16.dances (10 ^ 9) Day16.line <$> moves @?= Right (V.fromList "dcmlhejnifpokgba")
       ]
     ]
