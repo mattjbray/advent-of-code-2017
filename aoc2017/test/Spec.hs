@@ -143,23 +143,19 @@ day5tests =
        "Day 5"
        [ testGroup
            "Part 1"
-           [ testCase "The example takes 5 steps" $ do
-               steps <- Day5.steps Day5.part1 example
-               steps @?= 5
+           [ testCase "The example takes 5 steps" $
+               Day5.steps Day5.part1 example @?= 5
            , testCase "The solution is 373160" $ do
                instructions <- Day5.getInstructions
-               steps <- Day5.steps Day5.part1 instructions
-               steps @?= 373160
+               Day5.steps Day5.part1 instructions @?= 373160
            ]
        , testGroup
            "Part 2"
-           [ testCase "The example takes 10 steps" $ do
-               steps <- Day5.steps Day5.part2 example
-               steps @?= 10
+           [ testCase "The example takes 10 steps" $
+               Day5.steps Day5.part2 example @?= 10
            , slowTestCase "The solution is 26395586" $ do
                instructions <- Day5.getInstructions
-               steps <- Day5.steps Day5.part2 instructions
-               steps @?= 26395586
+               Day5.steps Day5.part2 instructions @?= 26395586
            ]
        ]
 
