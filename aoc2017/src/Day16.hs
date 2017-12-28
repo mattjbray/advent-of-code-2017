@@ -1,11 +1,15 @@
 module Day16 where
 
+import Control.Monad (replicateM_)
+import Control.Monad.ST (ST)
 import Debug.Trace
 import Data.List (splitAt, foldl')
+import Data.Foldable (forM_)
 import Data.Maybe (fromMaybe)
-import Data.Vector (Vector)
-import qualified Data.Vector as V
-import qualified Data.Vector.Mutable as MV
+import Data.Vector.Unboxed (Vector)
+import qualified Data.Vector.Unboxed as V
+import Data.Vector.Unboxed.Mutable (STVector)
+import qualified Data.Vector.Unboxed.Mutable as MV
 import Text.Megaparsec
 import Text.Megaparsec.Char
 
@@ -55,36 +59,40 @@ move =
 parseMoves :: String -> Either (ParseError (Token String) ()) [Move]
 parseMoves = parse (sepBy move (char ',')) ""
 
-danceSpin :: Programs -> Int -> Programs
+danceSpin :: STVector s Char -> Int -> ST s ()
 danceSpin ps x =
-  let (front, back) = V.splitAt (length ps - x) ps
-  in back V.++ front
+  let offset = MV.length ps - x
+  in do
+    copy <- MV.clone ps
+    forM_ [0..x - 1] $ \i -> do
+      program <- MV.unsafeRead copy (i + offset)
+      MV.unsafeWrite ps i program
+    forM_ [x..MV.length ps - 1] $ \i -> do
+      program <- MV.unsafeRead copy (i - x)
+      MV.unsafeWrite ps i program
 
-danceExchange :: Programs -> Int -> Int -> Programs
+danceExchange :: STVector s Char -> Int -> Int -> ST s ()
 danceExchange ps indexA indexB =
-  V.modify
-   (\ps -> MV.unsafeSwap ps indexA indexB)
-  ps
+  MV.unsafeSwap ps indexA indexB
 
-dancePartner :: Programs -> Char -> Char -> Programs
-dancePartner ps programA programB =
+dancePartner :: STVector s Char -> Char -> Char -> ST s ()
+dancePartner ps programA programB = do
+  ps' <- V.freeze ps
   let (indexA, indexB) =
         fromMaybe (0,0) $ do
-          indexA <- V.elemIndex programA ps
-          indexB <- V.elemIndex programB ps
+          indexA <- V.elemIndex programA ps'
+          indexB <- V.elemIndex programB ps'
           return $ (indexA, indexB)
-  in V.modify (\ps -> MV.unsafeSwap ps indexA indexB) ps
+  MV.unsafeSwap ps indexA indexB
 
-danceMove :: Programs -> Move -> Programs
+danceMove :: STVector s Char -> Move -> ST s ()
 danceMove ps (Spin x) = danceSpin ps x
 danceMove ps (Exchange indexA indexB) = danceExchange ps indexA indexB
 danceMove ps (Partner programA programB) = dancePartner ps programA programB
 
 dance :: Programs -> [Move] -> Programs
-dance = foldl' danceMove
+dance = dances 1
 
 dances :: Int -> Programs -> [Move] -> Programs
 dances n ps moves =
-  foldl' (\ps i ->
-            (if i `mod` 1000 == 0 then traceShow i else id)
-            dance ps moves) ps [0..n-1]
+  V.modify (\mv -> replicateM_ n $ forM_ moves (danceMove mv)) ps
