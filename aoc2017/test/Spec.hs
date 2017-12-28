@@ -17,6 +17,7 @@ import qualified Day13
 import qualified Day14
 import qualified Day15
 import qualified Day16
+import qualified Day17
 import           Test.Tasty
 import           Test.Tasty.ExpectedFailure
 import           Test.Tasty.HUnit
@@ -59,6 +60,7 @@ main =
     , day14tests
     , day15tests
     , day16tests
+    , day17tests
     ]
 
 day3tests :: TestTree
@@ -514,5 +516,35 @@ day16tests =
                   in Day16.dances (10 ^ 9 `mod` cycleLen) Day16.line ms
                   ) moves
             @?= Right (UV.fromList "ifocbejpdnklamhg")
+      ]
+    ]
+
+day17tests :: TestTree
+day17tests =
+  let exampleStepSize = 3
+      puzzleInput = 371
+  in testGroup "Day 17"
+    [ testGroup "Part 1"
+      [ testGroup "if the spinlock were to step 3 times per insert, the circular buffer would begin to evolve like this"
+          [ testCase "after 1 step" $
+            (Day17.spinlock exampleStepSize) !! 1 @?= (1, [0, 1])
+          , testCase "after 2 steps" $
+            (Day17.spinlock exampleStepSize) !! 2 @?= (1, [0, 2, 1])
+          , testCase "after 3 steps" $
+            (Day17.spinlock exampleStepSize) !! 3 @?= (2, [0, 2, 3, 1])
+          , testCase "and so on" $
+            (take 6 . drop 4) (Day17.spinlock exampleStepSize) @?=
+            [ (2, [0, 2, 4, 3, 1])
+            , (1, [0, 5, 2, 4, 3, 1])
+            , (5, [0, 5, 2, 4, 3, 6, 1])
+            , (2, [0, 5, 7, 2, 4, 3, 6, 1])
+            , (6, [0, 5, 7, 2, 4, 3, 8, 6, 1])
+            , (1, [0, 9, 5, 7, 2, 4, 3, 8, 6, 1])
+            ]
+          ]
+      , testCase "the value that will ultimately be after the last value written" $
+        Day17.solve exampleStepSize @?= 638
+      , testCase "the solution is 1311" $
+        Day17.solve puzzleInput @?= 1311
       ]
     ]
