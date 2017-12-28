@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module Day16 where
 
 import Control.Monad (replicateM_)
@@ -75,14 +76,25 @@ danceExchange :: STVector s Char -> Int -> Int -> ST s ()
 danceExchange ps indexA indexB =
   MV.unsafeSwap ps indexA indexB
 
+mvElemIndex :: forall s. Char -> STVector s Char -> ST s Int
+mvElemIndex c mv =
+  go 0
+  where
+    go :: Int -> ST s Int
+    go i =
+          if i == MV.length mv then
+            return (-1)
+          else do
+            c' <- MV.unsafeRead mv i
+            if c == c' then
+              return i
+            else
+              go (i + 1)
+
 dancePartner :: STVector s Char -> Char -> Char -> ST s ()
 dancePartner ps programA programB = do
-  ps' <- V.freeze ps
-  let (indexA, indexB) =
-        fromMaybe (0,0) $ do
-          indexA <- V.elemIndex programA ps'
-          indexB <- V.elemIndex programB ps'
-          return $ (indexA, indexB)
+  indexA <- mvElemIndex programA ps
+  indexB <- mvElemIndex programB ps
   MV.unsafeSwap ps indexA indexB
 
 danceMove :: STVector s Char -> Move -> ST s ()
