@@ -7,6 +7,7 @@ import Debug.Trace
 import Data.List (splitAt, foldl')
 import Data.Foldable (forM_)
 import Data.Maybe (fromMaybe)
+import qualified Data.Set as S
 import Data.Vector.Unboxed (Vector)
 import qualified Data.Vector.Unboxed as V
 import Data.Vector.Unboxed.Mutable (STVector)
@@ -24,6 +25,7 @@ data Move
   = Spin Int
   | Exchange Int Int
   | Partner Char Char
+  deriving (Show)
 
 type Parser = Parsec () String
 
@@ -108,3 +110,15 @@ dance = dances 1
 dances :: Int -> Programs -> [Move] -> Programs
 dances n ps moves =
   V.modify (\mv -> replicateM_ n $ forM_ moves (danceMove mv)) ps
+
+cycleLength :: Programs -> [Move] -> Int
+cycleLength v moves =
+  go S.empty 0 v
+  where
+    go seen i v =
+      if S.member v seen then
+        i
+      else
+        go (S.insert v seen)
+           (i + 1)
+           (dance v moves)

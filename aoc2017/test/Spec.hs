@@ -495,8 +495,12 @@ day16tests =
       [ testCase "after their second dance" $ do
           Day16.dances 2 exampleLine <$> Day16.parseMoves exampleDance
           @?= Right (UV.fromList "ceadb")
-      , slowTestCase "the solution is" $ do
+      , testCase "the solution is ifocbejpdnklamhg" $ do
           moves <- Day16.parseMoves <$> readFile "../resources/day_16.txt"
-          Day16.dances (10 ^ 3) Day16.line <$> moves @?= Right (UV.fromList "dcmlhejnifpokgba")
+          fmap (\moves ->
+                  let cycleLen = Day16.cycleLength Day16.line moves
+                  in Day16.dances ((10 ^ 9) `mod` cycleLen) Day16.line moves
+                  ) moves
+            @?= Right (UV.fromList "ifocbejpdnklamhg")
       ]
     ]
