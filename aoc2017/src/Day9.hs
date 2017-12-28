@@ -13,7 +13,6 @@ module Day9
 where
 
 import Text.Megaparsec
-import Text.Megaparsec.Char
 
 type Parser = Parsec () String
 
@@ -38,13 +37,13 @@ group = do
 
 garbage :: Parser Garbage
 garbage = do
-  count <-
+  garbageCount <-
     between (char '<') (char '>') $
       many $ choice
         [ char '!' >> anyChar >> return 0
         , satisfy (\c -> c /= '>') >> return 1
         ]
-  return $ Garbage (sum count)
+  return $ Garbage (sum garbageCount)
 
 countGroups :: Group -> Int
 countGroups (Group {gContents}) =
@@ -53,12 +52,12 @@ countGroups (Group {gContents}) =
    map
      (\contents ->
         case contents of
-          CGroup group -> countGroups group
+          CGroup g -> countGroups g
           CGarbage _ -> 0) $
    gContents)
 
 score :: Group -> Int
-score group = go 0 group
+score g = go 0 g
   where
     go :: Int -> Group -> Int
     go n (Group {gContents}) =
@@ -67,7 +66,7 @@ score group = go 0 group
        map
          (\contents ->
             case contents of
-              CGroup group -> go (n + 1) group
+              CGroup g' -> go (n + 1) g'
               CGarbage _ -> 0) $
        gContents)
 
@@ -77,6 +76,6 @@ countGarbage (Group {gContents}) =
   map
     (\contents ->
        case contents of
-         CGroup group -> countGarbage group
+         CGroup g -> countGarbage g
          CGarbage (Garbage i) -> i) $
   gContents

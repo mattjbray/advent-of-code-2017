@@ -31,8 +31,7 @@ go f i v nSteps =
 
 steps :: (Int -> Int) -> Vector Int -> Int
 steps f v =
-  let len = V.length v
-  in runST $ do
+  runST $ do
     mv <- V.thaw v
     go f 0 mv 0
 

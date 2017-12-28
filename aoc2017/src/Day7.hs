@@ -2,9 +2,7 @@
 module Day7 where
 
 import Data.Foldable (asum)
-import Data.Maybe (fromMaybe)
 import Text.Megaparsec
-import Text.Megaparsec.Char
 import Data.Tree
 import Data.List (partition, elem, find)
 import qualified Data.MultiSet as MS
@@ -21,18 +19,18 @@ data Program = Program
 program :: Parser Program
 program = do
   pName <- some letterChar
-  spaceChar
+  _ <- spaceChar
   pWeight <-
     between (char '(') (char ')')
      (read <$> some numberChar)
   pSubPrograms <- subPrograms
-  eol
+  _ <- eol
   return $ Program {pName, pWeight, pSubPrograms}
 
 subPrograms :: Parser [String]
 subPrograms =
     option [] $ do
-      string " -> "
+      _ <- string " -> "
       some letterChar `sepBy` string ", "
 
 readPrograms :: FilePath -> IO (Maybe [Program])
@@ -44,14 +42,14 @@ type ProgramTree = Tree (String, Int)
 buildLevel :: ([Program], [ProgramTree]) -> ([Program], [ProgramTree])
 buildLevel (programs, trees) =
   foldl
-  (\(programs, nodes) program ->
+  (\(ps, nodes) p ->
            let (childTrees, rest) =
-                 partition ((flip elem) (pSubPrograms program) . fst . rootLabel) nodes
+                 partition ((flip elem) (pSubPrograms p) . fst . rootLabel) nodes
            in
-           if length childTrees == length (pSubPrograms program) then
-             (programs, (Node (pName program, pWeight program) childTrees) : rest)
+           if length childTrees == length (pSubPrograms p) then
+             (ps, (Node (pName p, pWeight p) childTrees) : rest)
            else
-             (program : programs, nodes)
+             (p : ps, nodes)
      )
   ([], trees)
   programs
@@ -78,9 +76,9 @@ wrongWeight (Node _ children) =
             MS.fromList ((\(_, _, w) -> w) . rootLabel <$> children)
       in if MS.distinctSize childWeights > 1 then
         case leastAndMostCommonElems childWeights of
-          Just (wrongWeight, correctWeight) -> do
-            Node (_, weight, _) _ <- find (\(Node (_, _, w) _) -> w == wrongWeight) children
-            Just $ weight + correctWeight - wrongWeight
+          Just (wrong, correct) -> do
+            Node (_, weight, _) _ <- find (\(Node (_, _, w) _) -> w == wrong) children
+            Just $ weight + correct - wrong
           _ -> Nothing
       else Nothing
 
@@ -89,14 +87,14 @@ leastAndMostCommonElems :: MS.MultiSet a -> Maybe (a, a)
 leastAndMostCommonElems =
   fmap (\(least,_,most,_) -> (least, most)) .
   MS.foldOccur
-    (\elem occur acc ->
+    (\e occur acc ->
        case acc of
-         Nothing -> Just (elem, occur, elem, occur)
+         Nothing -> Just (e, occur, e, occur)
          Just (leastElem, leastOccur, mostElem, mostOccur) ->
            if occur < leastOccur then
-             Just (elem, occur, mostElem, mostOccur)
+             Just (e, occur, mostElem, mostOccur)
            else if occur > mostOccur then
-             Just (leastElem, leastOccur, elem, occur)
+             Just (leastElem, leastOccur, e, occur)
            else
              acc
              )

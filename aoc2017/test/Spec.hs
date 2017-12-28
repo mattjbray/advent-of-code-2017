@@ -1,8 +1,7 @@
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE OverloadedLists #-}
 
-import           Data.Bifunctor             (bimap)
 import           Data.Proxy                 (Proxy (Proxy))
-import qualified Data.Vector                as V
 import qualified Data.Vector.Unboxed        as UV
 import           Day3
 import           Day4
@@ -62,6 +61,7 @@ main =
     , day16tests
     ]
 
+day3tests :: TestTree
 day3tests =
   testGroup
     "Day 3"
@@ -99,6 +99,7 @@ day3tests =
         ]
     ]
 
+day4tests :: TestTree
 day4tests =
   testGroup
     "Day 4"
@@ -138,6 +139,7 @@ day4tests =
     ]
 
 
+day5tests :: TestTree
 day5tests =
   let example = [0, 3, 0, 1, -3]
   in testGroup
@@ -160,6 +162,7 @@ day5tests =
            ]
        ]
 
+day6tests :: TestTree
 day6tests =
   let example = [0, 2, 7, 0] in
   testGroup "Day 6"
@@ -189,6 +192,7 @@ day6tests =
         ]
     ]
 
+day7tests :: TestTree
 day7tests =
   testGroup "Day 7"
     [ testGroup "Part 1"
@@ -209,6 +213,7 @@ day7tests =
         ]
     ]
 
+day8tests :: TestTree
 day8tests =
   testGroup "Day 8"
     [ testGroup "Part 1"
@@ -235,6 +240,7 @@ day8tests =
         ]
     ]
 
+day9tests :: TestTree
 day9tests =
   let puzzleInput =
         Day9.parse Day9.group "day_9.txt" <$> readFile "../resources/day_9.txt"
@@ -304,6 +310,7 @@ day9tests =
       ]
     ]
 
+day10tests :: TestTree
 day10tests =
   testGroup "Day 10"
     [ let listSize = 5
@@ -323,8 +330,7 @@ day10tests =
            lengths <- Day10.parseInput <$> readFile "../resources/day_10.txt"
            Day10.solve 256 <$> lengths @?= Right 11375
          ]
-    , let exampleLengths = [3, 4, 1, 5] ++ Day10.lengthsSuffix
-      in testGroup "Part 2"
+    , testGroup "Part 2"
       [ testCase "if you are given 1,2,3, your final sequence of lengths should be 49,44,50,44,51,17,31,73,47,23" $
         Day10.inputToBytes "1,2,3" @?= [49,44,50,44,51,17,31,73,47,23]
       , testGroup "Here are some example hashes"
@@ -343,6 +349,7 @@ day10tests =
       ]
     ]
 
+day11tests :: TestTree
 day11tests =
   testGroup "Day 11"
     [ testGroup "Part 1"
@@ -365,6 +372,7 @@ day11tests =
       ]
     ]
 
+day12tests :: TestTree
 day12tests =
   testGroup "Day 12"
     [ testGroup "Part 1"
@@ -385,6 +393,7 @@ day12tests =
       ]
     ]
 
+day13tests :: TestTree
 day13tests =
   testGroup "Day 13"
     [ testGroup "Part 1"
@@ -403,6 +412,7 @@ day13tests =
       ]
     ]
 
+day14tests :: TestTree
 day14tests =
    let exampleKey = "flqrgnkx"
        puzzleInput = "stpzcrnm"
@@ -434,6 +444,7 @@ day14tests =
       ]
     ]
 
+day15tests :: TestTree
 day15tests =
    testGroup "Day 15"
     [ testGroup "Part 1"
@@ -470,6 +481,7 @@ day15tests =
       ]
     ]
 
+day16tests :: TestTree
 day16tests =
   let exampleLine = ['a'..'e']
       exampleDance =  "s1,x3/4,pe/b"
@@ -497,9 +509,9 @@ day16tests =
           @?= Right (UV.fromList "ceadb")
       , testCase "the solution is ifocbejpdnklamhg" $ do
           moves <- Day16.parseMoves <$> readFile "../resources/day_16.txt"
-          fmap (\moves ->
-                  let cycleLen = Day16.cycleLength Day16.line moves
-                  in Day16.dances ((10 ^ 9) `mod` cycleLen) Day16.line moves
+          fmap (\ms ->
+                  let cycleLen = Day16.cycleLength Day16.line ms
+                  in Day16.dances (10 ^ 9 `mod` cycleLen) Day16.line ms
                   ) moves
             @?= Right (UV.fromList "ifocbejpdnklamhg")
       ]

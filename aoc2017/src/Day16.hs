@@ -3,17 +3,13 @@ module Day16 where
 
 import Control.Monad (replicateM_)
 import Control.Monad.ST (ST)
-import Debug.Trace
-import Data.List (splitAt, foldl')
 import Data.Foldable (forM_)
-import Data.Maybe (fromMaybe)
 import qualified Data.Set as S
 import Data.Vector.Unboxed (Vector)
 import qualified Data.Vector.Unboxed as V
 import Data.Vector.Unboxed.Mutable (STVector)
 import qualified Data.Vector.Unboxed.Mutable as MV
 import Text.Megaparsec
-import Text.Megaparsec.Char
 
 
 type Programs = Vector Char
@@ -31,23 +27,23 @@ type Parser = Parsec () String
 
 spin :: Parser Move
 spin = do
-  char 's'
+  _ <- char 's'
   i <- read <$> some digitChar
   return $ Spin i
 
 exchange :: Parser Move
 exchange = do
-  char 'x'
+  _ <- char 'x'
   a <- read <$> some digitChar
-  char '/'
+  _ <- char '/'
   b <- read <$> some digitChar
   return $ Exchange a b
 
 partner :: Parser Move
 partner = do
-  char 'p'
+  _ <- char 'p'
   a <- letterChar
-  char '/'
+  _ <- char '/'
   b <- letterChar
   return $ Partner a b
 
@@ -112,8 +108,8 @@ dances n ps moves =
   V.modify (\mv -> replicateM_ n $ forM_ moves (danceMove mv)) ps
 
 cycleLength :: Programs -> [Move] -> Int
-cycleLength v moves =
-  go S.empty 0 v
+cycleLength ps moves =
+  go S.empty 0 ps
   where
     go seen i v =
       if S.member v seen then

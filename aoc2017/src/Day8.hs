@@ -5,8 +5,8 @@ import Data.Map (Map)
 import Data.Maybe (fromMaybe)
 import qualified Data.Map as M
 import Text.Megaparsec
-import Text.Megaparsec.Char
 
+example :: String
 example = unlines
   [ "b inc 5 if a > 1"
   , "a inc 1 if b < 5"
@@ -37,11 +37,11 @@ int =
 instruction :: Parser Instruction
 instruction = do
   iRegister <- some letterChar
-  spaceChar
+  _ <- spaceChar
   iOperation <- operation
-  string " if "
+  _ <- string " if "
   iCondition <- condition
-  eol
+  _ <- eol
   return $ Instruction { iRegister, iOperation, iCondition }
 
 operation :: Parser (Int -> Int)
@@ -50,7 +50,7 @@ operation = do
     [ const (+) <$> string "inc"
     , const (-) <$> string "dec"
     ]
-  spaceChar
+  _ <- spaceChar
   val <- int
   return $ \i -> i `op` val
 

@@ -2,7 +2,6 @@
 module Day11 where
 
 import Text.Megaparsec
-import Text.Megaparsec.Char
 
 data Dir
   = N

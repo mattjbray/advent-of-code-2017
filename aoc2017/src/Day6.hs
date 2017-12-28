@@ -28,13 +28,13 @@ detectLoop :: Vector Int -> (Int, Vector Int)
 detectLoop banks =
   go Set.empty 1 banks
   where
-    go seen i banks =
-      let banks' = reallocateCycle banks
+    go seen i bs =
+      let bs' = reallocateCycle bs
       in
-        if Set.member banks' seen then
-          (i, banks')
+        if Set.member bs' seen then
+          (i, bs')
         else
-          go (Set.insert banks' seen) (i + 1) banks'
+          go (Set.insert bs' seen) (i + 1) bs'
 
 
 input :: Vector Int

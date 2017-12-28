@@ -4,7 +4,6 @@ module Day10 where
 import Data.Vector (Vector)
 import qualified Data.Vector as V
 import Text.Megaparsec
-import Text.Megaparsec.Char
 import Data.List (intercalate, mapAccumL)
 import Data.List.Split (chunksOf)
 import Text.Printf (printf)
@@ -17,7 +16,7 @@ data Acc = Acc
   }
 
 instance Show Acc where
-  show (Acc {xs, position, skipSize}) =
+  show (Acc {xs, position}) =
     "(" ++
     concatMap
      (\(i, x) ->
@@ -41,22 +40,22 @@ example =
   V.fromList [0..4]
 
 processLength :: Acc -> Int -> Acc
-processLength (Acc { xs, position, skipSize }) length =
-  let len = V.length xs
-      end = (position + length) `mod` len
+processLength (Acc { xs, position, skipSize }) l =
+  let xsLength = V.length xs
+      end = (position + l) `mod` xsLength
       xs' =
-        if length == 0 then
+        if l == 0 then
           xs
         else if position < end then
           V.concat
             [ V.take position xs
-            , V.reverse (V.slice position length xs)
+            , V.reverse (V.slice position l xs)
             , V.drop end xs
             ]
         else
           let subList = V.drop position xs V.++ V.take end xs
               subListReversed = V.reverse subList
-              (part1, part2) = V.splitAt (len - position) subListReversed
+              (part1, part2) = V.splitAt (xsLength - position) subListReversed
           in
           V.concat
             [ part2
@@ -65,7 +64,7 @@ processLength (Acc { xs, position, skipSize }) length =
             ]
   in
     Acc { xs = xs'
-        , position = (position + length + skipSize) `mod` len
+        , position = (position + l + skipSize) `mod` xsLength
         , skipSize = skipSize + 1
         }
 
@@ -73,10 +72,11 @@ processLengths :: Int -> [Int] -> Vector Int
 processLengths listSize =
   xs . foldl processLength (initAcc listSize)
 
+debug :: Int -> [Int] -> [Char]
 debug listSize lengths =
   let (final, hist) =
-        mapAccumL (\acc length ->
-                     let acc' = processLength acc length in
+        mapAccumL (\acc l ->
+                     let acc' = processLength acc l in
                        (acc', acc)
                   )
         (initAcc listSize)
@@ -96,6 +96,7 @@ parseInput input =
 
 -- Part 2
 
+lengthsSuffix :: [Int]
 lengthsSuffix = [17, 31, 73, 47, 23]
 
 inputToBytes :: String -> [Int]

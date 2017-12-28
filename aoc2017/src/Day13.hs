@@ -4,9 +4,7 @@ module Day13 where
 import Data.Bifunctor (second)
 import Data.IntMap (IntMap)
 import qualified Data.IntMap as M
-import Data.Maybe (fromMaybe)
 import Text.Megaparsec
-import Text.Megaparsec.Char
 
 data Dir = Up | Down
   deriving (Show)
@@ -125,7 +123,7 @@ parseInput input =
     entry :: Parsec () String (Int, Int)
     entry = do
       k <- read <$> some digitChar
-      string ": "
+      _ <- string ": "
       v <- read <$> some digitChar
       return (k, v)
     parser :: Parsec () String Firewall
@@ -151,5 +149,5 @@ findDelay (Firewall { layers }) =
     where go i lastLayers layerStates =
             if canPass layerStates then i
             else
-              let layers = stepScanners lastLayers
-              in go (i + 1) layers (drop 1 layerStates ++ [layers])
+              let layers' = stepScanners lastLayers
+              in go (i + 1) layers' (drop 1 layerStates ++ [layers'])

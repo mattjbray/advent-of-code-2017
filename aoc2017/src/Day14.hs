@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE ViewPatterns #-}
 module Day14 where
 
@@ -38,6 +39,7 @@ hexToBits 'c' = [1, 1, 0, 0]
 hexToBits 'd' = [1, 1, 0, 1]
 hexToBits 'e' = [1, 1, 1, 0]
 hexToBits 'f' = [1, 1, 1, 1]
+hexToBits _ = error "hexToBits"
 
 countUsed :: Grid -> Int
 countUsed =
@@ -72,19 +74,21 @@ regions =
   buildNextRegion [] . toPositions
   where
     buildNextRegion :: [Set Pos] -> Set Pos -> [Set Pos]
-    buildNextRegion regions (Set.minView -> Nothing) = regions
-    buildNextRegion regions (Set.minView -> Just (pos, remaining)) =
-      let (region, remaining') = findNeighbours remaining pos
-      in buildNextRegion (region : regions) remaining'
+    buildNextRegion rs remaining =
+      case Set.minView remaining of
+        Nothing -> rs
+        Just (pos, remaining') ->
+          let (region, remaining'') = findNeighbours remaining' pos
+          in buildNextRegion (region : rs) remaining''
 
     findNeighbours :: Set Pos -> Pos -> (Set Pos, Set Pos)
     findNeighbours remaining pos =
       let ns = remaining `Set.intersection` (neighbours pos)
           remaining' = remaining `Set.difference` (neighbours pos)
       in
-        foldl (\(region, remaining) n ->
-                let (region', remaining') = findNeighbours remaining n
-                in (region `Set.union` region', remaining')
+        foldl (\(region, remaining_) n ->
+                let (region', remaining_') = findNeighbours remaining_ n
+                in (region `Set.union` region', remaining_')
                 )
           (Set.singleton pos, remaining') .
         Set.toList $ ns

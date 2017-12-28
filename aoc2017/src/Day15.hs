@@ -13,7 +13,10 @@ generator factor condition prev =
   else
     rest
 
+generatorA :: (Int -> Bool) -> Int -> [Word32]
 generatorA = generator 16807
+
+generatorB :: (Int -> Bool) -> Int -> [Word32]
 generatorB = generator 48271
 
 generators :: (Int, Int) -> [(Word32, Word32)]
@@ -29,12 +32,12 @@ judgePair a b =
   a .&. mask == b .&. mask
 
 judge :: Int -> [(Word32, Word32)] -> Int
-judge n generators =
+judge n =
   length .
   filter (uncurry judgePair) .
-  take n $
-  generators
+  take n
 
+part2Generators :: (Int, Int) -> [(Word32, Word32)]
 part2Generators (initA, initB) =
   zip (generatorA (\i -> i `mod` 4 == 0) initA)
       (generatorB (\i -> i `mod` 8 == 0) initB)

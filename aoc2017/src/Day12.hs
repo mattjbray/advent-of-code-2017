@@ -6,7 +6,6 @@ import Data.Maybe (fromMaybe)
 import Data.Set (Set)
 import qualified Data.Set as S
 import Text.Megaparsec
-import Text.Megaparsec.Char
 
 parseInput :: String -> Either (ParseError (Token String) ()) (IntMap (Set Int))
 parseInput input =
@@ -15,7 +14,7 @@ parseInput input =
     entry :: Parsec () String (Int, Set Int)
     entry = do
       k <- read <$> some digitChar
-      string " <-> "
+      _ <- string " <-> "
       vs <- map read <$>
         sepBy (some digitChar) (string ", ")
       return (k, S.fromList vs)
@@ -28,11 +27,11 @@ connectedPrograms n programs =
   go S.empty n
   where
     go :: Set Int -> Int -> Set Int
-    go seen n =
-      let seen' = S.insert n seen
-          directs = S.difference (fromMaybe S.empty (M.lookup n programs)) seen'
+    go seen m =
+      let seen' = S.insert m seen
+          directs = S.difference (fromMaybe S.empty (M.lookup m programs)) seen'
           indirects = S.unions . map (go seen') . S.toList $ directs
-      in S.unions [S.singleton n, directs, indirects]
+      in S.unions [S.singleton m, directs, indirects]
 
 groups :: IntMap (Set Int) -> Set (Set Int)
 groups programs =
