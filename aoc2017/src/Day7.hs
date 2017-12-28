@@ -3,6 +3,7 @@ module Day7 where
 
 import Data.Foldable (asum)
 import Text.Megaparsec
+import Text.Megaparsec.Char
 import Data.Tree
 import Data.List (partition, elem, find)
 import qualified Data.MultiSet as MS

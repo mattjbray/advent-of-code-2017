@@ -6,6 +6,7 @@ import Data.Maybe (fromMaybe)
 import Data.Set (Set)
 import qualified Data.Set as S
 import Text.Megaparsec
+import Text.Megaparsec.Char
 
 parseInput :: String -> Either (ParseError (Token String) ()) (IntMap (Set Int))
 parseInput input =

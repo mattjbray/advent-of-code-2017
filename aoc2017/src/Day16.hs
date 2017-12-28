@@ -10,6 +10,7 @@ import qualified Data.Vector.Unboxed as V
 import Data.Vector.Unboxed.Mutable (STVector)
 import qualified Data.Vector.Unboxed.Mutable as MV
 import Text.Megaparsec
+import Text.Megaparsec.Char
 
 
 type Programs = Vector Char

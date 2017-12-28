@@ -5,6 +5,7 @@ import Data.Map (Map)
 import Data.Maybe (fromMaybe)
 import qualified Data.Map as M
 import Text.Megaparsec
+import Text.Megaparsec.Char
 
 example :: String
 example = unlines

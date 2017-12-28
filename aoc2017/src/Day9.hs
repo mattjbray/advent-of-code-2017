@@ -13,6 +13,7 @@ module Day9
 where
 
 import Text.Megaparsec
+import Text.Megaparsec.Char
 
 type Parser = Parsec () String
 

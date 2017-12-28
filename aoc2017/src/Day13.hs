@@ -5,6 +5,7 @@ import Data.Bifunctor (second)
 import Data.IntMap (IntMap)
 import qualified Data.IntMap as M
 import Text.Megaparsec
+import Text.Megaparsec.Char
 
 data Dir = Up | Down
   deriving (Show)

@@ -4,6 +4,7 @@ module Day10 where
 import Data.Vector (Vector)
 import qualified Data.Vector as V
 import Text.Megaparsec
+import Text.Megaparsec.Char
 import Data.List (intercalate, mapAccumL)
 import Data.List.Split (chunksOf)
 import Text.Printf (printf)
