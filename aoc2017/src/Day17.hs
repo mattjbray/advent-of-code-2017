@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 module Day17 where
 
@@ -26,10 +27,9 @@ solve2 :: Int -> Int
 solve2 stepSize =
   go 0 0 1
   where
-    go currentPosition lastValAfterZero nextValue =
-      let len = nextValue
-          newPosition =
-            ((currentPosition + stepSize) `mod` len) + 1
+    go (!currentPosition) (!lastValAfterZero) (!nextValue) =
+      let newPosition =
+            ((currentPosition + stepSize) `mod` nextValue) + 1
           newValAfterZero =
             if newPosition == 1 then nextValue else lastValAfterZero
       in if nextValue == 50 * 10 ^ 6 then
