@@ -6,7 +6,7 @@ import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Sequence (Seq)
 import qualified Data.Sequence as Seq
-import Text.Megaparsec
+import Text.Megaparsec hiding (State)
 import Text.Megaparsec.Char
 
 data Val
@@ -18,17 +18,25 @@ data Op = Set | Add | Mul | Mod
   deriving (Show, Eq)
 
 data Instruction
-  = Snd Char
+  = Snd Val
   | Op Op Char Val
   | Rcv Char
   | Jgz Val Val
   deriving (Show, Eq)
 
+data State
+  = Running
+  | Blocked
+  | Halted
+  deriving (Show, Eq)
+
 data Program = Program
   { inst :: Int
   , lastFreqPlayed :: Int
-  , halted :: Bool
+  , state :: State
   , registers :: Map Char Int
+  , rcvQ :: Seq Int
+  , sndQ :: Seq Int
   }
   deriving (Show, Eq)
 
@@ -44,7 +52,7 @@ valP =
 instructionP :: Parser Instruction
 instructionP =
   choice
-    [ string "snd " >> Snd <$> lowerChar
+    [ string "snd " >> Snd <$> valP
     , string "set " >> Op Set <$> lowerChar <*> (char ' ' >> valP)
     , string "add " >> Op Add <$> lowerChar <*> (char ' ' >> valP)
     , string "mul " >> Op Mul <$> lowerChar <*> (char ' ' >> valP)
@@ -65,11 +73,31 @@ initProgram =
   Program { registers = Map.empty
           , inst = 0
           , lastFreqPlayed = 0
-          , halted = False
+          , state = Running
+          , rcvQ = Seq.empty
+          , sndQ = Seq.empty
           }
 
-step :: Seq Instruction -> Program -> Program
-step instructions program@(Program {registers, inst})=
+type SndHandler = Program -> Val -> Program
+type RcvHandler = Program -> Char -> Program
+
+part1OnSnd :: SndHandler
+part1OnSnd program@(Program {registers, inst}) val =
+  program
+    { lastFreqPlayed = getValue registers val
+    , inst = inst + 1
+    }
+
+part1OnRcv :: RcvHandler
+part1OnRcv program@(Program {registers, inst}) register =
+  let value = fromMaybe 0 (Map.lookup register registers)
+  in program
+      { state = if value == 0 then Running else Halted
+      , inst = inst + 1
+      }
+
+step :: SndHandler -> RcvHandler -> Seq Instruction -> Program -> Program
+step onSnd onRcv instructions program@(Program {registers, inst})=
   case instructions Seq.!? inst of
     Just (Op op register val) ->
       let value = getValue registers val
@@ -86,17 +114,10 @@ step instructions program@(Program {registers, inst})=
         }
 
     Just (Snd register) ->
-      program
-        { lastFreqPlayed = fromMaybe 0 (Map.lookup register registers)
-        , inst = inst + 1
-        }
+      onSnd program register
 
     Just (Rcv register) ->
-      let value = fromMaybe 0 (Map.lookup register registers)
-      in program
-         { halted = value /= 0
-         , inst = inst + 1
-         }
+      onRcv program register
 
     Just (Jgz register offset) ->
       let value = getValue registers register
@@ -104,8 +125,8 @@ step instructions program@(Program {registers, inst})=
          { inst = inst + if value > 0 then (getValue registers offset) else 1
          }
 
-    _ ->
-      program { halted = True }
+    Nothing ->
+      program { state = Halted }
 
 getValue :: Map Char Int -> Val -> Int
 getValue _ (Number n) = n
@@ -114,8 +135,65 @@ getValue registers (Register c) =
     Nothing -> 0
     Just n -> n
 
-run :: Seq Instruction -> Program -> Program
-run instructions =
+run :: SndHandler -> RcvHandler -> Seq Instruction -> Program -> Program
+run onSnd onRcv instructions =
   head .
-  dropWhile (not . halted) .
-  iterate (step instructions)
+  dropWhile ((== Running) . state) .
+  iterate (step onSnd onRcv instructions)
+
+runPart1 :: Seq Instruction -> Program -> Program
+runPart1 = run part1OnSnd part1OnRcv
+
+
+-- Part 2
+
+part2OnSnd :: SndHandler
+part2OnSnd program@(Program {registers, inst, sndQ}) val =
+  program
+    { inst = inst + 1
+    , sndQ = sndQ Seq.|> getValue registers val
+    }
+
+part2OnRcv :: RcvHandler
+part2OnRcv program@(Program {registers, inst, rcvQ}) register =
+  case rcvQ of
+    val Seq.:<| rcvQ' ->
+      program
+          { state = Running
+          , inst = inst + 1
+          , rcvQ = rcvQ'
+          , registers = Map.insert register val registers
+          }
+    Seq.Empty ->
+      program { state = Blocked }
+
+runPart2 :: Seq Instruction -> Program -> Program
+runPart2 = run part2OnSnd part2OnRcv
+
+data Programs = Programs
+  { program0 :: Program
+  , program1 :: Program
+  }
+  deriving (Show, Eq)
+
+initPrograms :: Programs
+initPrograms =
+  Programs
+    { program0 = initProgram { registers = Map.singleton 'p' 0 }
+    , program1 = initProgram { registers = Map.singleton 'p' 1 }
+    }
+
+step2 :: Seq Instruction -> Programs -> Programs
+step2 instructions (Programs { program0 = p0, program1 = p1 })  =
+  let p0' = p0 { sndQ = Seq.empty, rcvQ = rcvQ p0 Seq.>< sndQ p1, state = Running }
+      p1' = p1 { sndQ = Seq.empty, rcvQ = rcvQ p1 Seq.>< sndQ p0, state = Running }
+      p0'' = runPart2 instructions p0'
+      p1'' = runPart2 instructions p1'
+  in Programs { program0 = p0'', program1 = p1'' }
+
+run2 :: Seq Instruction -> Programs -> Programs
+run2 instructions programs@(Programs { program0 = p0, program1 = p1 }) =
+  case (state p0, sndQ p0, state p1, sndQ p1) of
+      (Halted, _, Halted, _) -> programs
+      (Blocked, Seq.Empty, Blocked, Seq.Empty) -> programs
+      _ -> run2 instructions (step2 instructions programs)

@@ -1,6 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE OverloadedLists #-}
 
+import           Data.List (intercalate)
 import           Data.Proxy                 (Proxy (Proxy))
 import qualified Data.Vector.Unboxed        as UV
 import qualified Data.Sequence as Seq
@@ -558,10 +559,10 @@ day17tests =
 
 day18tests :: TestTree
 day18tests =
-  let exampleInput = Day18.parseInput <$> readFile "../resources/day_18_example.txt"
-      puzzleInput = Day18.parseInput <$> readFile "../resources/day_18.txt"
+  let puzzleInput = Day18.parseInput <$> readFile "../resources/day_18.txt"
   in testGroup "Day 18"
-    [ testGroup "Part 1"
+    [ let exampleInput = Day18.parseInput <$> readFile "../resources/day_18_example.txt"
+      in testGroup "Part 1"
       [ testCase "it parses the input" $ do
         instructions <- exampleInput
         Seq.take 2 <$> instructions
@@ -571,44 +572,70 @@ day18tests =
       , testGroup "running the example"
         [ testCase "The first four instructions set a to 1, add 2 to it, square it, and then set it to itself modulo 5, resulting in a value of 4" $ do
             instructions <- fmap (Seq.take 4) <$> exampleInput
-            (flip Day18.run) Day18.initProgram <$> instructions
-              @?= Right Day18.Program
+            (flip Day18.runPart1) Day18.initProgram <$> instructions
+              @?= Right Day18.initProgram
                     { Day18.registers = [('a', 4)]
                     , Day18.inst = 4
                     , Day18.lastFreqPlayed = 0
-                    , Day18.halted = True
+                    , Day18.state = Day18.Halted
                     }
         , testCase "Then, a sound with frequency 4 (the value of a) is played" $ do
             instructions <- fmap (Seq.take 5) <$> exampleInput
-            (flip Day18.run) Day18.initProgram <$> instructions
-              @?= Right Day18.Program
+            (flip Day18.runPart1) Day18.initProgram <$> instructions
+              @?= Right Day18.initProgram
                     { Day18.registers = [('a', 4)]
                     , Day18.inst = 5
                     , Day18.lastFreqPlayed = 4
-                    , Day18.halted = True
+                    , Day18.state = Day18.Halted
                     }
         , testCase "After that, a is set to 0, causing the subsequent rcv and jgz instructions to both be skipped" $ do
             instructions <- fmap (Seq.take 8) <$> exampleInput
-            (flip Day18.run) Day18.initProgram <$> instructions
-              @?= Right Day18.Program
+            (flip Day18.runPart1) Day18.initProgram <$> instructions
+              @?= Right Day18.initProgram
                     { Day18.registers = [('a', 0)]
                     , Day18.inst = 8
                     , Day18.lastFreqPlayed = 4
-                    , Day18.halted = True
+                    , Day18.state = Day18.Halted
                     }
         , testCase "Finally, a is set to 1, which ultimately triggers the recover operation" $ do
             instructions <- exampleInput
-            (flip Day18.run) Day18.initProgram <$> instructions
-              @?= Right Day18.Program
+            (flip Day18.runPart1) Day18.initProgram <$> instructions
+              @?= Right Day18.initProgram
                     { Day18.registers = [('a', 1)]
                     , Day18.inst = 7
                     , Day18.lastFreqPlayed = 4
-                    , Day18.halted = True
+                    , Day18.state = Day18.Halted
                     }
         ]
       , testCase "the solution is 3188" $ do
           instructions <- puzzleInput
-          Day18.lastFreqPlayed . (flip Day18.run) Day18.initProgram <$> instructions
+          Day18.lastFreqPlayed . (flip Day18.runPart1) Day18.initProgram <$> instructions
             @?= Right 3188
       ]
+    , let exampleInput =
+            Day18.parseInput . intercalate "\n" $
+            [ "snd 1"
+            , "snd 2"
+            , "snd p"
+            , "rcv a"
+            , "rcv b"
+            , "rcv c"
+            , "rcv d"
+            ]
+      in testGroup "Part 2"
+          [ testCase "On the example tablet" $
+            (flip Day18.run2) Day18.initPrograms <$> exampleInput
+            @?= Right Day18.initPrograms
+                  { Day18.program0 = Day18.initProgram
+                      { Day18.inst = 6
+                      , Day18.state = Day18.Blocked
+                      , Day18.registers = [('a', 1), ('b', 2), ('c', 1), ('p', 0)]
+                      }
+                  , Day18.program1 = Day18.initProgram
+                      { Day18.inst = 6
+                      , Day18.state = Day18.Blocked
+                      , Day18.registers = [('a', 1), ('b', 2), ('c', 0), ('p', 1)]
+                      }
+                  }
+          ]
     ]
