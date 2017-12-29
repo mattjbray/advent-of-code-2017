@@ -26,7 +26,6 @@ library:
   source-dirs: src
   ghc-options:
     - -Wall
-    - -Werror
   dependencies:
     - containers
     - lens
@@ -56,7 +55,6 @@ tests:
     - -with-rtsopts=-N
     - -O2
     - -Wall
-    - -Werror
     dependencies:
     - aoc2017
     - containers
