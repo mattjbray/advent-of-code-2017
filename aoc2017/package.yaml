@@ -59,6 +59,7 @@ tests:
     - -Werror
     dependencies:
     - aoc2017
+    - containers
     - tasty
     - tasty-expected-failure
     - tasty-hunit

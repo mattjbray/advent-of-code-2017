@@ -3,6 +3,7 @@
 
 import           Data.Proxy                 (Proxy (Proxy))
 import qualified Data.Vector.Unboxed        as UV
+import qualified Data.Sequence as Seq
 import           Day3
 import           Day4
 import qualified Day5
@@ -18,6 +19,7 @@ import qualified Day14
 import qualified Day15
 import qualified Day16
 import qualified Day17
+import qualified Day18
 import           Test.Tasty
 import           Test.Tasty.ExpectedFailure
 import           Test.Tasty.HUnit
@@ -61,6 +63,7 @@ main =
     , day15tests
     , day16tests
     , day17tests
+    , day18tests
     ]
 
 day3tests :: TestTree
@@ -550,5 +553,62 @@ day17tests =
     , testGroup "Part 2"
       [ slowTestCase "the solution is 39170601" $
         Day17.solve2 puzzleInput @?= 39170601
+      ]
+    ]
+
+day18tests :: TestTree
+day18tests =
+  let exampleInput = Day18.parseInput <$> readFile "../resources/day_18_example.txt"
+      puzzleInput = Day18.parseInput <$> readFile "../resources/day_18.txt"
+  in testGroup "Day 18"
+    [ testGroup "Part 1"
+      [ testCase "it parses the input" $ do
+        instructions <- exampleInput
+        Seq.take 2 <$> instructions
+          @?= Right [ Day18.Op Day18.Set 'a' (Day18.Number 1)
+                    , Day18.Op Day18.Add 'a' (Day18.Number 2)
+                    ]
+      , testGroup "running the example"
+        [ testCase "The first four instructions set a to 1, add 2 to it, square it, and then set it to itself modulo 5, resulting in a value of 4" $ do
+            instructions <- fmap (Seq.take 4) <$> exampleInput
+            (flip Day18.run) Day18.initProgram <$> instructions
+              @?= Right Day18.Program
+                    { Day18.registers = [('a', 4)]
+                    , Day18.inst = 4
+                    , Day18.lastFreqPlayed = 0
+                    , Day18.halted = True
+                    }
+        , testCase "Then, a sound with frequency 4 (the value of a) is played" $ do
+            instructions <- fmap (Seq.take 5) <$> exampleInput
+            (flip Day18.run) Day18.initProgram <$> instructions
+              @?= Right Day18.Program
+                    { Day18.registers = [('a', 4)]
+                    , Day18.inst = 5
+                    , Day18.lastFreqPlayed = 4
+                    , Day18.halted = True
+                    }
+        , testCase "After that, a is set to 0, causing the subsequent rcv and jgz instructions to both be skipped" $ do
+            instructions <- fmap (Seq.take 8) <$> exampleInput
+            (flip Day18.run) Day18.initProgram <$> instructions
+              @?= Right Day18.Program
+                    { Day18.registers = [('a', 0)]
+                    , Day18.inst = 8
+                    , Day18.lastFreqPlayed = 4
+                    , Day18.halted = True
+                    }
+        , testCase "Finally, a is set to 1, which ultimately triggers the recover operation" $ do
+            instructions <- exampleInput
+            (flip Day18.run) Day18.initProgram <$> instructions
+              @?= Right Day18.Program
+                    { Day18.registers = [('a', 1)]
+                    , Day18.inst = 7
+                    , Day18.lastFreqPlayed = 4
+                    , Day18.halted = True
+                    }
+        ]
+      , testCase "the solution is 3188" $ do
+          instructions <- puzzleInput
+          Day18.lastFreqPlayed . (flip Day18.run) Day18.initProgram <$> instructions
+            @?= Right 3188
       ]
     ]
