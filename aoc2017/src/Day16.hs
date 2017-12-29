@@ -75,6 +75,7 @@ danceExchange :: STVector s Char -> Int -> Int -> ST s ()
 danceExchange ps indexA indexB =
   MV.unsafeSwap ps indexA indexB
 
+{-| `elemIndex` for mutable vectors. -}
 mvElemIndex :: forall s. Char -> STVector s Char -> ST s Int
 mvElemIndex c mv =
   go 0
