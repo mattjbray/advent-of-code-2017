@@ -547,4 +547,8 @@ day17tests =
       , testCase "the solution is 1311" $
         Day17.solve puzzleInput @?= 1311
       ]
+    , testGroup "Part 2"
+      [ slowTestCase "the solution is 39170601" $
+        Day17.solve2 puzzleInput @?= 39170601
+      ]
     ]
