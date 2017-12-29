@@ -33,6 +33,7 @@ data State
 data Program = Program
   { inst :: Int
   , lastFreqPlayed :: Int
+  , numSnds :: Int
   , state :: State
   , registers :: Map Char Int
   , rcvQ :: Seq Int
@@ -73,6 +74,7 @@ initProgram =
   Program { registers = Map.empty
           , inst = 0
           , lastFreqPlayed = 0
+          , numSnds = 0
           , state = Running
           , rcvQ = Seq.empty
           , sndQ = Seq.empty
@@ -148,10 +150,11 @@ runPart1 = run part1OnSnd part1OnRcv
 -- Part 2
 
 part2OnSnd :: SndHandler
-part2OnSnd program@(Program {registers, inst, sndQ}) val =
+part2OnSnd program@(Program {registers, inst, sndQ, numSnds}) val =
   program
     { inst = inst + 1
     , sndQ = sndQ Seq.|> getValue registers val
+    , numSnds = numSnds + 1
     }
 
 part2OnRcv :: RcvHandler

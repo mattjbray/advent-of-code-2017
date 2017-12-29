@@ -630,12 +630,18 @@ day18tests =
                       { Day18.inst = 6
                       , Day18.state = Day18.Blocked
                       , Day18.registers = [('a', 1), ('b', 2), ('c', 1), ('p', 0)]
+                      , Day18.numSnds = 3
                       }
                   , Day18.program1 = Day18.initProgram
                       { Day18.inst = 6
                       , Day18.state = Day18.Blocked
                       , Day18.registers = [('a', 1), ('b', 2), ('c', 0), ('p', 1)]
+                      , Day18.numSnds = 3
                       }
                   }
+          , testCase "the solution is 7112" $ do
+              instructions <- puzzleInput
+              Day18.numSnds . Day18.program1 . (flip Day18.run2) Day18.initPrograms <$> instructions
+                @?= Right 7112
           ]
     ]
